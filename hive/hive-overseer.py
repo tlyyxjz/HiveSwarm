@@ -115,8 +115,22 @@ def check_pre_tool():
                 print(f"BLOCKED: {TOOL_NAME} | 省Token铁律 | 总违规: {counter['violations']}", file=sys.stderr)
                 sys.exit(2)
 
+    # ══════ RULE 0.5: 新Agent/Skill自动同步 ══════
+    A_DIR = HOME / ".claude/agents"
+    S_DIR = HOME / ".claude/skills"
+    if TOOL_NAME in ("Write", "Edit"):
+        cmd_chk = check_input or ""
+        if str(A_DIR) in cmd_chk or str(S_DIR) in cmd_chk or "agents/" in cmd_chk or "skills/" in cmd_chk:
+            write_mandate(f"""AUTO-SYNC: 新 Agent/Skill 文件已创建/修改。
+
+立即执行:
+  python ~/.claude/scripts/hive-learn.py --sync
+
+理由: 新能力必须自动注册到 presets/matrix/dispatcher
+""")
+            print(f"OVERRIDE: 新Agent/Skill → 已注入sync指令", file=sys.stderr)
+
     if not is_security:
-        # 非安全场景，PI规则过了就行
         sys.exit(0)
 
     # RULE 1: 安全+没brain → 阻断，注入mandate
