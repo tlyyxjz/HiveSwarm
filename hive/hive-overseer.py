@@ -203,7 +203,55 @@ def check_post_tool():
 3. 再攻击，攻击后写发现回 hive-mind
    """)
 
-    overseer["last_check"] = datetime.now(TZ).isoformat()
+    # 学习闭环: 全部Agent done + 有发现 → 自动分析模式
+    dispatch = load_json(DISPATCH) or {}
+    if hive and dispatch.get("mode") == "swarm":
+        agents = dispatch.get("agents", [])
+        states = hive.get("agent_states", {})
+        all_done = all(states.get(a, {}).get("status") == "done" for a in agents if a in states)
+        if all_done and agents and hive.get("findings"):
+            autopsy_path = DATA / "autopsy.json"
+            if not autopsy_path.exists():
+                # 战后复盘
+                from collections import defaultdict as ddict
+                findings = hive.get("findings", [])
+                by_sev = ddict(int); by_agent = ddict(int)
+                for f in findings:
+                    by_sev[f.get("severity","info")] += 1
+                    by_agent[f.get("agent","?")] += 1
+                # 学习: 标记零产出Agent
+                idle = [a for a in agents if by_agent[a] == 0]
+                lessons = {"ts": datetime.now(TZ).isoformat(),
+                           "total": len(findings),
+                           "high_crit": by_sev.get("critical",0)+by_sev.get("high",0),
+                           "idle_agents": idle,
+                           "top_performers": [k for k,_ in sorted(by_agent.items(), key=lambda x:-x[1])[:3]]}
+                save_json(autopsy_path, lessons)
+                if idle:
+                    print(f"LEARN: {len(idle)} idle agents — suggest removing from presets: {idle[:3]}", file=sys.stderr)
+
+    # Token预算检查 (Claude Flow)
+    TOKEN_BUDGET = 200000
+    WARN_THRESHOLD = 0.7
+    BLOCK_THRESHOLD = 0.9
+    # 用session cost环境变量估算
+    cost_str = os.environ.get("CLAUDE_CODE_SESSION_COST", "0")
+    try: spent = float(cost_str.replace("$","")) / 0.0008  # rough token estimate
+    except: spent = 0
+    ratio = spent / TOKEN_BUDGET
+    if ratio >= BLOCK_THRESHOLD:
+        write_mandate(f"""
+TOKEN BUDGET CRITICAL: {ratio:.0%} of {TOKEN_BUDGET//1000}k consumed ({spent//1000:.0f}k tokens)
+
+1. 立即停用非关键Agent
+2. 派简单任务给PI (python ~/.pi/dispatch.py)
+3. 只保留关键发现确认
+4. 汇总现有发现结束任务
+""")
+        print(f"BUDGET: CRITICAL {ratio:.0%} | 阻断非关键Agent", file=sys.stderr)
+    elif ratio >= WARN_THRESHOLD:
+        print(f"BUDGET: WARN {ratio:.0%} | {spent//1000:.0f}k/{TOKEN_BUDGET//1000}k tokens", file=sys.stderr)
+
     (DATA / "hive-overseer.json").write_text(json.dumps(overseer, ensure_ascii=False, indent=2), encoding="utf-8")
     sys.exit(0)
 

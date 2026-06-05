@@ -24,7 +24,15 @@ DATA = HOME / ".claude/data"
 HIVE_FILE = str(HOME / ".claude/scripts/hive-mind.py")
 HIVE_AGENT = str(HOME / ".claude/scripts/hive-agent.py")
 HIVE = DATA / "hive-mind.json"
+MEMORY_GIT = HOME / ".claude/memory-git"
 DATA.mkdir(parents=True, exist_ok=True)
+
+# 三层记忆配置 (Letta MemGPT 架构)
+MEMORY_TIERS = {
+    "core":     {"max": 20,  "ttl_hours": 24,   "severities": ("critical", "high")},
+    "recall":   {"max": 200, "ttl_hours": 168,  "severities": ("medium",)},
+    "archival": {"max": 1000,"ttl_hours": None,  "severities": ("low", "info")},
+}
 
 def timestamp():
     return datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S")
@@ -36,7 +44,40 @@ def load():
 
 def save(data):
     data["_updated"] = timestamp()
+
+    # 三层记忆自动分层 (Letta MemGPT)
+    if "findings" in data and "_memory" not in data:
+        data["_memory"] = {"core": [], "recall": [], "archival": []}
+    if "findings" in data and "_memory" in data:
+        existing_ids = {m["id"] for t in data["_memory"].values() for m in t}
+        for f in data["findings"]:
+            if f.get("id") not in existing_ids:
+                sev = f.get("severity", "info")
+                mem = {"id": f["id"], "type": f.get("type",""), "severity": sev,
+                       "agent": f.get("agent",""), "endpoint": f.get("endpoint",""),
+                       "ts": f.get("ts", timestamp())}
+                tier = "core" if sev in ("critical","high") else "recall" if sev == "medium" else "archival"
+                data["_memory"][tier].insert(0, mem)
+                existing_ids.add(f["id"])
+        for tier, cfg in MEMORY_TIERS.items():
+            lst = data["_memory"].get(tier, [])
+            if cfg["max"] and len(lst) > cfg["max"]:
+                overflow = lst[cfg["max"]:]
+                data["_memory"][tier] = lst[:cfg["max"]]
+
     HIVE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # Git记忆追踪 (Letta MemFS) — 后台不阻塞
+    try:
+        import subprocess as _sp
+        MEMORY_GIT.mkdir(parents=True, exist_ok=True)
+        mem_file = MEMORY_GIT / "hive-memory.json"
+        mem_file.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        if not (MEMORY_GIT / ".git").exists():
+            _sp.run(["git","init"], cwd=MEMORY_GIT, capture_output=True)
+        _sp.run(["git","add","-A"], cwd=MEMORY_GIT, capture_output=True)
+        _sp.run(["git","commit","-m",f"memory {timestamp()}"], cwd=MEMORY_GIT, capture_output=True)
+    except: pass
 
 # ─── 命令 ───
 

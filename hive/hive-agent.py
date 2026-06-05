@@ -171,14 +171,33 @@ def cmd_done(agent):
         print(f"\n📋 下一个待命: {next_agent} ({info['focus']})")
         print(f"   python {__file__} start {next_agent}")
     else:
-        # 全部完成 → 汇总
+        # 全部完成 → 战后复盘 (Letta Dreaming 模式)
         findings = hive.get("findings", [])
         if findings:
-            high = sum(1 for f in findings if f.get("severity") in ("high", "critical"))
-            print(f"\n✅ 蜂群任务完成！{len(findings)} 个发现 ({high} 个高危)")
-            print(f"   python {HIVE_CMD} status  ← 查看全景")
+            from collections import defaultdict
+            by_sev = defaultdict(int); by_agent = defaultdict(int); by_type = defaultdict(int)
+            for f in findings:
+                by_sev[f.get("severity","info")] += 1
+                by_agent[f.get("agent","?")] += 1
+                by_type[f.get("type","?")] += 1
+            patterns = []
+            if by_sev.get("critical",0) > 0: patterns.append(f"CRIT: {by_sev['critical']} criticals")
+            if by_sev.get("high",0) >= 3: patterns.append(f"HIGH: {by_sev['high']} highs — systemic")
+            idle = [a for a,s in (hive.get("agent_states",{}) or {}).items() if by_agent[a]==0]
+            if idle: patterns.append(f"IDLE: {', '.join(idle[:3])}")
+            high = by_sev.get("critical",0) + by_sev.get("high",0)
+            print(f"\n[POSTMORTEM] {len(findings)} findings ({high} high/crit)")
+            for p in patterns: print(f"  {p}")
+            print(f"  Top: {sorted(by_agent.items(),key=lambda x:-x[1])[:3]}")
+            print(f"  Memory: core={len(hive.get('_memory',{}).get('core',[]))} recall={len(hive.get('_memory',{}).get('recall',[]))} archival={len(hive.get('_memory',{}).get('archival',[]))}")
+            autopsy = {"ts": timestamp(), "mission": hive.get("mission","?"), "total": len(findings),
+                       "by_severity": dict(by_sev), "by_type": dict(by_type),
+                       "agent_perf": {a: by_agent[a] for a in hive.get("agent_states",{})},
+                       "patterns": patterns, "verdict": "ACTION_REQUIRED" if by_sev.get("critical",0)>0 else "PASS"}
+            Path(HOME / ".claude/data/autopsy.json").write_text(json.dumps(autopsy, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"   autopsy.json written | 学习闭环可用: python ~/.claude/scripts/hive-mind.py status")
         else:
-            print(f"\n✅ 蜂群任务完成！未发现高危漏洞。")
+            print(f"\n[DONE] 蜂群任务完成，未发现高危漏洞。")
 
 
 if __name__ == "__main__":

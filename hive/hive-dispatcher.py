@@ -205,13 +205,36 @@ else:
 # 决策: 蜂群优先（团队优势: +3 bonus）
 SWARM_BONUS = 3
 if swarm_cfg and (swarm_score + SWARM_BONUS) >= solo_score:
+    agents = swarm_cfg["agents"]
+    # 拓扑选择 (Claude Flow)
+    n = len(agents)
+    needs_consensus = any(kw in p for kw in ["全面","完整","所有","每个","confirm","验证","确认","关键","critical"])
+    if needs_consensus and n >= 3:
+        topology = "ring"     # 环形验证: A验B的发现 B验C
+    elif n <= 4:
+        topology = "parallel" # 独立并行无依赖
+    elif n <= 8:
+        topology = "star"     # 星型: hub分发
+    elif n >= 12:
+        topology = "parallel" # 大规模并行
+    else:
+        topology = "parallel"
+
+    # 共识投票: 高危发现自动配2个交叉验证Agent
+    verify_agents = []
+    if needs_consensus and n >= 2:
+        verify_agents = agents[:min(3, n)]
+
     # ── 蜂群模式 ──
     plan = {
         "mode": "swarm",
         "label": swarm_cfg["label"],
         "swarm": swarm_name,
-        "agents": swarm_cfg["agents"],
-        "agent_count": len(swarm_cfg["agents"]),
+        "agents": agents,
+        "agent_count": len(agents),
+        "topology": topology,
+        "consensus_required": needs_consensus,
+        "verify_agents": verify_agents,
         "recon_first": swarm_cfg.get("recon_first", False),
         "prompt": prompt[:300],
     }
