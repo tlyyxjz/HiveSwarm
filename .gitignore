@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.claude/data/
+*.jsonl
+brain-result.json
+brain-input.txt
+hive-overseer.json
+pi-violation-counter.json
+.env
+*.log

@@ -1,0 +1,136 @@
+{
+  "version": "1.0",
+  "generated": "2026-06-05",
+  "description": "Agent-Skill 整合矩阵 — 每个 Agent 配备专属技能包，消除孤立",
+
+  "agents": {
+    "scout": {
+      "type": "pi",
+      "role": "搜索与情报收集",
+      "skills": ["everything-search", "codegraph", "get-context", "repo-understand", "src-hunter"],
+      "trigger": ["搜索", "查找", "找一下", "有没有", "GitHub"]
+    },
+    "dev": {
+      "type": "pi",
+      "role": "全栈编码实现",
+      "skills": ["auto-dev", "code-refactor", "python-project-creator", "python-design-patterns", "python-testing-patterns", "build-with-me"],
+      "methodology": ["test-driven-development", "writing-plans", "executing-plans", "subagent-driven-development"],
+      "trigger": ["写代码", "实现", "开发", "修复", "重构"]
+    },
+    "audit": {
+      "type": "pi",
+      "role": "安全审计与漏洞挖掘",
+      "skills": ["bounty-hunter", "bug-reaper", "Claude-BugHunter", "trailofbits", "system-eye", "architecture-review", "shannon-framework"],
+      "sub_agents": ["ad-pwn", "api-hunter", "binary-exploiter", "bug-bounty-methodologist", "cloud-escape", "confusion-attacker", "http-smuggler", "llm-redteamer", "mobile-reverser", "supply-chain-hunter", "web3-auditor", "report-humanizer", "sql-injector", "xss-hunter", "waf-bypasser", "race-condition"],
+      "trigger": ["审计", "漏洞", "安全", "渗透", "赏金", "bounty", "SQL注入", "XSS", "WAF绕过", "竞态"]
+    },
+    "recon": {
+      "type": "pi",
+      "role": "资产侦察与信息收集",
+      "skills": ["browser-harness-kit", "CloakBrowser", "agentcloak", "auto-bounty"],
+      "trigger": ["侦察", "扫描", "端口", "子域名", "爬虫"]
+    },
+    "trader": {
+      "type": "pi",
+      "role": "交易与行情分析",
+      "skills": ["ai4trade", "copytrade", "tradesync", "heartbeat", "market-intel", "polymarket"],
+      "trigger": ["交易", "行情", "盈亏", "买入", "卖出", "持仓", "日报"]
+    },
+    "reporter": {
+      "type": "pi",
+      "role": "报告生成与文档输出",
+      "skills": ["pptx", "writing-skills", "gstack:document-generate", "gstack:document-release"],
+      "trigger": ["报告", "PPT", "文档", "生成", "写报告"]
+    },
+    "browser": {
+      "type": "pi",
+      "role": "浏览器自动化与截图",
+      "skills": ["CloakBrowser", "browser-harness-kit", "cua-driver"],
+      "trigger": ["截图", "浏览器", "打开网页", "填表", "登录"]
+    },
+    "ops": {
+      "type": "pi",
+      "role": "环境运维与流程管理",
+      "skills": ["finishing-a-development-branch", "using-git-worktrees", "project-review", "verification-before-completion"],
+      "trigger": ["部署", "发布", "提交", "PR", "git"]
+    },
+    "researcher": {
+      "type": "pi",
+      "role": "深度研究分析",
+      "skills": ["deep-dive", "academic-research-skills", "code-context"],
+      "trigger": ["研究", "分析", "调研", "深度"]
+    },
+    "teacher": {
+      "type": "pi",
+      "role": "教学与知识讲解",
+      "skills": ["check-understanding", "lesson-plan", "teach-concept", "socratic-mode", "challenge-generator", "flashcards", "spaced-repetition", "simplify-topic", "debug-teacher", "interview-mode", "misconception-detector", "find-your-level", "weak-area-tracker", "learned", "learning-memory", "reflect", "revision-mode"],
+      "trigger": ["教我", "学习", "解释", "什么是", "怎么学", "练习"]
+    }
+  },
+
+  "core_process_skills": [
+    "brainstorming",
+    "dispatching-parallel-agents",
+    "using-superpowers",
+    "systematic-debugging",
+    "skill-creator",
+    "file-receiver",
+    "image-analysis",
+    "humanizer-zh"
+  ],
+
+  "deprecated_skills": {
+    "genskills-* (24个)": "2026-06-05 已归档到 .archived/ — 功能已被 dev/audit agent 覆盖",
+    "blueprint": "2026-06-05 已归档 — 功能已被 gstack:design 覆盖",
+    "best-practices": "2026-06-05 已归档 — 内容已整合到各 agent 方法论中",
+    "planning-with-files-zh": "2026-06-05 已归档 — 功能已被 writing-plans 覆盖",
+    "amm-skills": "2026-06-05 已归档 — 零使用",
+    "archived_total": 32
+  },
+
+  "stats": {
+    "before_cleanup": 104,
+    "after_cleanup": 72,
+    "archived": 32,
+    "core_process_skills": 8,
+    "pi_agent_skills": "~40 mapped across 10 agents",
+    "security_agents": 16,
+    "security_agent_skills": "~20 mapped across 16 agents",
+    "automation_scripts": 2
+  },
+
+  "integration_rules": {
+    "1": "接收任务 → UserPromptSubmit hook 匹配 skill → 同时匹配对应 agent",
+    "2": "匹配到 agent → 自动启动该 agent，加载其全套技能",
+    "3": "多 agent 协作 → dispatching-parallel-agents 调度",
+    "4": "每个 agent 启动时显式列出其技能包",
+    "5": "Agent 完成后写使用日志到 .claude/logs/agent-usage.jsonl",
+    "6": "http-smuggler匹配 → 自动跑 smuggler-probe.py 探测 | api-hunter匹配 → 自动跑 api-probe.py"
+  },
+
+  "automation_scripts": {
+    "smuggler-probe.py": "HTTP Smuggling CL.TE/TE.CL/CL.0 自动探测",
+    "api-probe.py": "API 未授权端点/JWT弱密钥/Mass Assignment/IDOR 快速扫描",
+    "inject-probe.py": "SQLi + XSS 快速一键探测（8种payload自动判别）",
+    "dep-audit.py": "npm audit + CVE 依赖审计",
+    "deser-probe.py": "node-serialize + pickle + yaml 反序列化RCE探测"
+  },
+
+  "hive_system": {
+    "status": "active",
+    "installed": "2026-06-05",
+    "components": {
+      "hive-mind.py": "蜂巢共享大脑 — 所有Agent的发现/端点/状态集中存储，谁要谁读",
+      "hive-dispatcher.py": "蜂群调度器 — 替代dispatch-router，6种预设蜂群模式自动拆解+并行派发",
+      "hive-agent.py": "Agent执行器 — 启动时读hive-mind上下文，完成时写回发现，队尾→自动调度下一个"
+    },
+    "swarm_presets": {
+      "full_web_audit": "6 Agent: api-hunter+sql-injector+xss-hunter+http-smuggler+waf-bypasser+confusion",
+      "quick_web_scan": "4 Agent: api-hunter+sql-injector+xss-hunter+waf-bypasser",
+      "api_audit": "3 Agent: api-hunter+confusion+race-condition",
+      "injection_surface": "4 Agent: sql-injector+xss-hunter+confusion+http-smuggler",
+      "basic_web": "3 Agent: api-hunter+sql-injector+xss-hunter"
+    }
+  },
+  }
+}

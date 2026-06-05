@@ -1,0 +1,349 @@
+{
+  "_description": "蜂群预设库 — 每项定义一种攻击组合。可随时增删改，hive-dispatcher 实时读取。",
+  "_syntax": {
+    "name": "预设名（唯一）",
+    "trigger": [
+      "触发正则1",
+      "触发正则2"
+    ],
+    "trigger_score": "触发所需最低分数 1-12",
+    "agents": [
+      "agent1",
+      "agent2"
+    ],
+    "label": "显示标签",
+    "recon_first": "是否先侦察再攻击",
+    "note": "组合说明"
+  },
+  "presets": {
+    "apocalypse": {
+      "trigger": [
+        "(末日|火力全开|全火力|all.*in|all.*out|apocalypse|全部.*拉|所有.*agent|16.*agent|满编|全部.*上|一起上|全上|倾巢)"
+      ],
+      "trigger_score": 11,
+      "agents": [
+        "api-hunter",
+        "sql-injector",
+        "xss-hunter",
+        "http-smuggler",
+        "waf-bypasser",
+        "confusion",
+        "race-condition",
+        "supply-chain",
+        "binary-exploiter",
+        "cloud-escape",
+        "mobile-reverser",
+        "ad-pwn",
+        "web3-auditor",
+        "llm-redteamer",
+        "bb-methodologist",
+        "report-humanizer"
+      ],
+      "label": "🔥 末日全火力 — 16 Agent 倾巢而出",
+      "recon_first": true,
+      "note": "全部Agent — 每一个攻击面都不放过。先recon扫攻击面，再16路并行开火"
+    },
+    "spider_queen": {
+      "trigger": [
+        "(蜘蛛|全自动|自动化.*全面|auto.*full|spider|爬全站|crawl.*all)",
+        "(所有.*漏洞|每一个.*漏洞|不漏|全部.*漏洞).*(?:找|查|扫|挖|审计)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "bb-methodologist",
+        "api-hunter",
+        "sql-injector",
+        "xss-hunter",
+        "http-smuggler",
+        "waf-bypasser",
+        "confusion",
+        "race-condition",
+        "supply-chain",
+        "binary-exploiter"
+      ],
+      "label": "🕸️ 蜘蛛女王 — 10 Agent 全自动漏洞猎手",
+      "recon_first": true,
+      "note": "10 Agent — 先全网爬虫+侦察，再全谱漏洞覆盖。漏一个算我输"
+    },
+    "full_web_audit": {
+      "trigger": [
+        "(全面|完整|全站|彻底|深度).*(审计|扫描|测试|评估|渗透|挖掘)",
+        "(审计|扫描|测试).*(全面|完整|全站|所有|整个|深度)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "api-hunter",
+        "sql-injector",
+        "xss-hunter",
+        "http-smuggler",
+        "waf-bypasser",
+        "confusion"
+      ],
+      "label": "🕷️ 全面Web审计",
+      "recon_first": true,
+      "note": "6 Agent — 覆盖全部Web攻击面"
+    },
+    "quick_web_scan": {
+      "trigger": [
+        "(快扫|快速.*(扫|测|查)|扫一下|扫一扫|查一下|看.*有没有.*漏洞|light.*scan)",
+        "scan.*(site|web|url|网站)"
+      ],
+      "trigger_score": 8,
+      "agents": [
+        "api-hunter",
+        "sql-injector",
+        "xss-hunter",
+        "waf-bypasser"
+      ],
+      "label": "⚡ 快速Web扫描",
+      "recon_first": false,
+      "note": "4 Agent — 核心攻击面快速过一遍"
+    },
+    "api_audit": {
+      "trigger": [
+        "api.*(审计|扫描|测试|漏洞|安全)|graphql.*(审计|扫描|测试)",
+        "(rest|graphql|openapi|swagger).*(安全|扫描|审计)"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "api-hunter",
+        "confusion",
+        "race-condition"
+      ],
+      "label": "🔌 API审计",
+      "recon_first": true,
+      "note": "3 Agent — 接口越权+解析混淆+竞态"
+    },
+    "injection_surface": {
+      "trigger": [
+        "注入.*(扫描|测试|审计|攻击面)|injection.*(scan|test|audit)",
+        "sqli.*(扫描|测试)|xss.*(扫描|测试)|command.*inject"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "sql-injector",
+        "xss-hunter",
+        "confusion",
+        "http-smuggler"
+      ],
+      "label": "💉 注入攻击面",
+      "recon_first": false,
+      "note": "4 Agent — 全部注入类漏洞"
+    },
+    "basic_web": {
+      "trigger": [
+        "(审计|扫描|测试|找.*漏洞|检查|修|安全|pentest).*(这个|网站|目标|域名|url|app|系统|web|http|代码|源码|源码)",
+        "((这个|某个|一个).*(网站|域名|url|app|系统|代码|源码|仓库)).*(审计|扫描|安全|漏洞|检查)"
+      ],
+      "trigger_score": 7,
+      "agents": [
+        "api-hunter",
+        "sql-injector",
+        "xss-hunter"
+      ],
+      "label": "🐝 基础Web审计",
+      "recon_first": false,
+      "note": "3 Agent — 最常见的漏洞类型"
+    },
+    "cloud_attack": {
+      "trigger": [
+        "云.*(安全|审计|攻击|渗透|扫描)|aws.*(安全|渗透|审计)|azure.*(安全|渗透)|gcp.*(安全|渗透)",
+        "容器.*(安全|审计|攻击|扫描)|docker.*(安全|审计)|kubernetes.*(安全|攻击)"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "cloud-escape",
+        "api-hunter",
+        "supply-chain"
+      ],
+      "label": "☁️ 云+容器攻击",
+      "recon_first": true,
+      "note": "3 Agent — 云逃逸+API+供应链"
+    },
+    "mobile_full": {
+      "trigger": [
+        "app.*(安全|审计|测试|渗透|扫描)|移动.*(安全|审计|测试|渗透)",
+        "android.*(安全|审计|逆向|测试)|ios.*(安全|审计|越狱|测试)",
+        "apk.*(审计|逆向|分析|测试)|ipa.*(审计|逆向)"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "mobile-reverser",
+        "api-hunter",
+        "confusion"
+      ],
+      "label": "📱 移动端全审计",
+      "recon_first": true,
+      "note": "3 Agent — 逆向+API+混淆"
+    },
+    "defi_security": {
+      "trigger": [
+        "智能合约.*(审计|安全)|solidity.*(安全|审计|漏洞)|defi.*(攻击|漏洞|安全|审计|扫描)",
+        "web3.*(安全|审计|漏洞)|区块链.*(安全|审计)|reentranc|闪电贷"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "web3-auditor",
+        "api-hunter",
+        "race-condition"
+      ],
+      "label": "⛓️ DeFi安全审计",
+      "recon_first": false,
+      "note": "3 Agent — 合约+接口+竞态"
+    },
+    "ad_infiltration": {
+      "trigger": [
+        "ad.*(渗透|攻击|安全|审计|域)|active.*directory.*(渗透|攻击|审计)",
+        "域.*(渗透|攻击|审计|安全)|域控|kerberos.*攻击|dcsync|bloodhound"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "ad-pwn",
+        "confusion",
+        "supply-chain"
+      ],
+      "label": "🏰 AD域渗透",
+      "recon_first": true,
+      "note": "3 Agent — AD+混淆+供应链"
+    },
+    "llm_app_security": {
+      "trigger": [
+        "llm.*(安全|攻击|审计|漏洞|测试)|ai.*(安全|攻击|审计|扫描|测试)|prompt.*inject",
+        "chatgpt.*(安全|漏洞)|rag.*(安全|攻击)|langchain.*(安全|漏洞)|ai.*agent.*(安全|漏洞)"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "llm-redteamer",
+        "api-hunter",
+        "xss-hunter"
+      ],
+      "label": "🤖 LLM应用安全",
+      "recon_first": false,
+      "note": "3 Agent — LLM+API+XSS"
+    },
+    "binary_deep_dive": {
+      "trigger": [
+        "二进制.*(审计|分析|漏洞|利用|安全|逆向)|栈.*溢出|堆.*溢出|rop.*链|pwntools|buffer.*overflow",
+        "ghidra|ida.*pro|radare2|binary.*ninja|revers.*engineer.*binary|反汇编"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "binary-exploiter",
+        "confusion",
+        "supply-chain"
+      ],
+      "label": "💀 二进制深度分析",
+      "recon_first": false,
+      "note": "3 Agent — 二进制+混淆+供应链"
+    },
+    "src_bounty": {
+      "trigger": [
+        "src.*(挖洞|漏洞|赏金|众测)|bug.*bounty.*(挖|找|狩猎)|赏金.*(猎人|挖洞|漏洞)",
+        "hackerone|bugcrowd|intigriti|yeswehack|immunefi|补天|漏洞盒子"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "bb-methodologist",
+        "api-hunter",
+        "sql-injector",
+        "xss-hunter",
+        "confusion"
+      ],
+      "label": "💰 SRC赏金狩猎",
+      "recon_first": true,
+      "note": "5 Agent — 方法论+全谱漏洞覆盖"
+    },
+    "supply_chain_audit": {
+      "trigger": [
+        "供应链.*(攻击|安全|审计|扫描)|依赖.*(安全|审计|扫描|检查|漏洞)|npm.*(恶意|安全|审计)|pypi.*(恶意|安全|审计)",
+        "ci.*cd.*(安全|审计|扫描)|github.*action.*(安全|审计)"
+      ],
+      "trigger_score": 9,
+      "agents": [
+        "supply-chain",
+        "api-hunter",
+        "confusion"
+      ],
+      "label": "📦 供应链审计",
+      "recon_first": false,
+      "note": "3 Agent — 供应链+API+混淆"
+    },
+    "chain_sql_injection____privilege_escalation___": {
+      "name": "chain_sql_injection____privilege_escalation___",
+      "trigger": [
+        "(sql injection -> privilege escalation -> data exfiltration)",
+        "(sql injection-privilege escalation-data exfiltration)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "sql-injector",
+        "api-hunter"
+      ],
+      "label": "Chain: SQL Injection -> Privilege Escalation -> Data Exfiltration",
+      "recon_first": true,
+      "note": "HackerOne chain: SQL Injection -> Privilege Escalation -> Data Exfiltration | 2 agents"
+    },
+    "chain_xss____csrf____account_takeover": {
+      "name": "chain_xss____csrf____account_takeover",
+      "trigger": [
+        "(xss -> csrf -> account takeover)",
+        "(xss-csrf-account takeover)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "xss-hunter",
+        "api-hunter"
+      ],
+      "label": "Chain: XSS -> CSRF -> Account Takeover",
+      "recon_first": true,
+      "note": "HackerOne chain: XSS -> CSRF -> Account Takeover | 2 agents"
+    },
+    "chain_ssrf____cloud_metadata____aws_credential": {
+      "name": "chain_ssrf____cloud_metadata____aws_credential",
+      "trigger": [
+        "(ssrf -> cloud metadata -> aws credential theft)",
+        "(ssrf-cloud metadata-aws credential theft)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "confusion",
+        "cloud-escape"
+      ],
+      "label": "Chain: SSRF -> Cloud Metadata -> AWS Credential Theft",
+      "recon_first": true,
+      "note": "HackerOne chain: SSRF -> Cloud Metadata -> AWS Credential Theft | 2 agents"
+    },
+    "chain_http_smuggling____cache_poisoning____sto": {
+      "name": "chain_http_smuggling____cache_poisoning____sto",
+      "trigger": [
+        "(http smuggling -> cache poisoning -> stored xss -> session h)",
+        "(http smuggling-cache poisoning-stored xss)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "http-smuggler",
+        "xss-hunter",
+        "api-hunter"
+      ],
+      "label": "Chain: HTTP Smuggling -> Cache Poisoning -> Stored XSS -> Session Hijacking",
+      "recon_first": true,
+      "note": "HackerOne chain: HTTP Smuggling -> Cache Poisoning -> Stored XSS -> Session Hijacking | 3 agents"
+    },
+    "chain_path_traversal____source_code_disclosure": {
+      "name": "chain_path_traversal____source_code_disclosure",
+      "trigger": [
+        "(path traversal -> source code disclosure -> hardcoded secret)",
+        "(path traversal-source code disclosure-hardcoded secret)"
+      ],
+      "trigger_score": 10,
+      "agents": [
+        "confusion",
+        "binary-exploiter",
+        "api-hunter"
+      ],
+      "label": "Chain: Path Traversal -> Source Code Disclosure -> Hardcoded Secret -> API Access",
+      "recon_first": true,
+      "note": "HackerOne chain: Path Traversal -> Source Code Disclosure -> Hardcoded Secret -> API Access | 3 agents"
+    }
+  }
+}
