@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><title>HiveSwarm 实时战况</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a0f;color:#c0c0d0;font-family:Consolas,monospace;padding:20px}
+h1{color:#06b6d4;font-size:1.3em;margin-bottom:10px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#12121a;border:1px solid #1e1e2e;border-radius:8px;padding:14px}
+.card h2{font-size:.8em;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em}
+.agent{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.85em}
+.dot{width:8px;height:8px;border-radius:50%}.green{background:#22c55e;box-shadow:0 0 6px #22c55e}
+.yellow{background:#eab308;box-shadow:0 0 6px #eab308}.white{background:#64748b}
+.flag{background:#1a1212;border-left:3px solid #ef4444;padding:6px 10px;margin:4px 0;font-size:.8em;border-radius:4px}
+.flag.crit{border-color:#dc2626}.flag.high{border-color:#f97316}.flag.med{border-color:#eab308}
+.metric{font-size:1.6em;font-weight:bold} .good{color:#22c55e}.warn{color:#eab308}.bad{color:#ef4444}
+.bar{height:4px;background:#1e1e2e;border-radius:2px;margin-top:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.bar-fill.green{background:#22c55e}.bar-fill.yellow{background:#eab308}.bar-fill.red{background:#ef4444}
+.pi-status{font-size:.85em;padding:8px;border-radius:6px;margin-top:8px}
+.pi-status.ok{background:#0a1a0a;color:#22c55e}.pi-status.warn{background:#1a1a0a;color:#eab308}
+.pi-status.block{background:#1a0a0a;color:#ef4444} </style></head>
+<body><h1>HiveSwarm 实时战况</h1><p style="color:#64748b;margin-bottom:12px">更新: 11:26:31 | 刷新浏览器更新</p>
+<div class="grid"><div class="card"><h2>Agent 状态</h2><div id="agents"></div></div>
+<div class="card"><h2>最近发现</h2><div id="findings"></div></div>
+<div class="card"><h2>系统指标</h2><div id="metrics"></div></div>
+<div class="card"><h2>PI 状态</h2><div id="pi"></div></div></div>
+<script>const D={"ts": "11:26:31", "mission": "TempImage FileUpload PNG绕过 | 16Agent蜂群全火力", "mode": "idle", "topology": "?", "label": "", "agents": [{"name": "waf-bypasser", "status": "hunting", "findings": 1}, {"name": "http-smuggler", "status": "hunting", "findings": 1}, {"name": "api-hunter", "status": "hunting", "findings": 0}, {"name": "sql-injector", "status": "hunting", "findings": 0}, {"name": "xss-hunter", "status": "hunting", "findings": 0}, {"name": "confusion", "status": "hunting", "findings": 0}, {"name": "race-condition", "status": "standby", "findings": 0}, {"name": "supply-chain", "status": "standby", "findings": 0}, {"name": "binary-exploiter", "status": "standby", "findings": 0}, {"name": "cloud-escape", "status": "standby", "findings": 0}, {"name": "mobile-reverser", "status": "standby", "findings": 0}, {"name": "web3-auditor", "status": "standby", "findings": 0}, {"name": "llm-redteamer", "status": "standby", "findings": 0}, {"name": "ad-pwn", "status": "standby", "findings": 0}, {"name": "bb-methodologist", "status": "standby", "findings": 0}, {"name": "report-humanizer", "status": "standby", "findings": 0}], "queue": ["race-condition", "supply-chain", "binary-exploiter", "cloud-escape", "mobile-reverser", "web3-auditor", "llm-redteamer", "ad-pwn", "bb-methodologist", "report-humanizer"], "done": ["waf-bypasser"], "findings_count": 2, "last_findings": [{"id": "6bd53b3a", "agent": "waf-bypasser", "type": "FileUploadPNG绕过", "severity": "high", "endpoint": "C:/Program Files/Git/doUpload.php", "detail": "PNG polyglot上传成功——PHP嵌入tEXt块。需找到执行路径。", "payload": "", "confirmed": false, "ts": "2026-06-06 11:22:54"}, {"id": "2c89c39e", "agent": "http-smuggler", "type": "上传路径枚举", "severity": "high", "endpoint": "C:/Program Files/Git/uploads/shell.php", "detail": "尝试访问uploads/files/images/shell.php 等待Apache执行PNG中的PHP", "payload": "", "confirmed": false, "ts": "2026-06-06 11:22:59"}], "bash_streak": 0, "pi_warns": 0, "pi_total_violations": 0};
+(function(){var a=D.agents||[],q=D.queue||[],d=D.done||[];
+document.getElementById("agents").innerHTML=a.length?a.map(function(x){var c=x.status==="hunting"?"green":x.status==="done"?"white":"yellow";
+return'<div class=agent><span class="dot '+c+'"></span><b>'+x.name+"</b> "+x.status+" | "+(x.findings||0)+" 发现</div>"}).join("")+(q.length?"<p style=color:#64748b;margin-top:6px>队列: "+q.join(", ")+"</p>":"")+(d.length?"<p style=color:#22c55e>已完成: "+d.join(", ")+"</p>":""):"<p style=color:#64748b>无活跃Agent</p>";
+var f=D.last_findings||[];
+document.getElementById("findings").innerHTML=f.length?f.map(function(x){var s=x.severity||"info",c=s==="critical"?"crit":s==="high"?"high":s==="medium"?"med":"";return'<div class="flag '+c+'"><b>['+s.toUpperCase()+"]</b> "+(x.type||"?")+"<br><span style=color:#64748b>"+(x.agent||"?")+" @ "+(x.endpoint||"?")+"</span></div>"}).join(""):"<p style=color:#64748b>暂无发现</p>";
+var fc=D.findings_count||0,n=D.findings_count||0,bp=D.bash_streak||0;
+document.getElementById("metrics").innerHTML='<div class=metric style=color:'+(fc>=3?"#22c55e":fc>=1?"#eab308":"#ef4444")+'>'+n+"</div><small>发现总数</small><div style=margin-top:8px>Bash连用: "+bp+'/3</div><div class=bar><div class="bar-fill '+(bp>=3?"red":bp>=2?"yellow":"green")+'" style=width:'+(bp*33)+'%></div></div><div style=margin-top:10px>模式: '+(D.mode||"idle")+" | 拓扑: "+(D.topology||"?")+"</div>";
+var streak=D.bash_streak||0,cls=streak>=3?"block":streak>=2?"warn":"ok",msg=streak>=3?"阻断: 强制派PI":streak>=2?"警告: 建议派PI":"正常";
+document.getElementById("pi").innerHTML='<div class="pi-status '+cls+'">'+msg+" | 累计违规: "+(D.pi_total_violations||0)+"</div>"})();</script></body></html>

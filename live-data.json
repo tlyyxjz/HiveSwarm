@@ -1,0 +1,16 @@
+{
+  "ts": "11:22:04",
+  "mission": "https://ec1f5391cf27304d475df17255fbdc26.ctf.hacker101.com/ ",
+  "mode": "idle",
+  "topology": "parallel",
+  "label": "",
+  "agents": [],
+  "queue": [],
+  "done": [],
+  "findings_count": 0,
+  "last_findings": [],
+  "pi_used": false,
+  "bash_streak": 0,
+  "pi_warns": 0,
+  "pi_total_violations": 0
+}
