@@ -93,7 +93,7 @@ class CircuitBreaker(RecoveryStrategy):
             except Exception as exc:  # noqa: BLE001 — 熔断要兜住所有异常
                 last_exc = exc
                 self._record_failure()
-                _log.warning("op failed (attempt %d/%d): %s", attempt + 1, retries, exc)
+                _log.warning("op failed (attempt %d/%d): %s", attempt + 1, retries, exc, exc_info=True)
         if fallback is not None:
             return fallback
         assert last_exc is not None

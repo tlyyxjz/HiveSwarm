@@ -32,12 +32,17 @@ class MultiTenant(TenantContext):
         self._lock = threading.Lock()
         self._cache: dict[str, Tenant] = {}
         for tid, cfg in tenants.items():
-            self._cache[tid] = Tenant(
-                tenant_id=str(tid),
-                name=str(cfg.get("name", tid)),
-                plan=str(cfg.get("plan", "free")),
-                skill_allowlist=tuple(cfg.get("skill_allowlist", ()) or ()),
-            )
+            try:
+                allowlist_raw = cfg.get("skill_allowlist", ()) or ()
+                self._cache[tid] = Tenant(
+                    tenant_id=str(tid),
+                    name=str(cfg.get("name", tid)),
+                    plan=str(cfg.get("plan", "free")),
+                    skill_allowlist=tuple(allowlist_raw),
+                )
+            except Exception as exc:
+                _log.warning("tenant %r config invalid, skip: %s", tid, exc, exc_info=True)
+                raise
 
     def get(self, tenant_id: str) -> Tenant:
         """查租户. 不存在抛 PermissionError (区别于 default 兜底)."""
