@@ -1,0 +1,11 @@
+[pack]
+name = "hiveswarm-skill-crawler"
+version = "0.2.0"
+api_version = "1.0"
+min_core_version = "0.1.0"
+description = "通用 HTTP 爬虫: GET / POST / HTML 解析, 不绑定特定业务"
+
+[skills]
+http_fetch   = { file = "crawler_pack/skills.py:39",  class = "HttpFetchSkill" }
+url_extract  = { file = "crawler_pack/skills.py:147", class = "UrlExtractSkill" }
+http_post    = { file = "crawler_pack/skills.py:215", class = "HttpPostSkill" }

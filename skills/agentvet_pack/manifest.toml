@@ -1,0 +1,14 @@
+"""Skill manifest — 描述技能包版本兼容性."""
+[pack]
+name = "hiveswarm-skill-agentvet"
+version = "0.1.0"
+api_version = "1.0"        # 跟 core/skill.py 匹配
+min_core_version = "0.1.0"  # 至少 0.1.0
+description = "AgentVet L1-L4 security scan, 包装自 tlyyxjz/agentvet"
+
+[skills]
+# manifest 列出包提供的 skill, Pool 可自动发现
+agentvet_l1 = { file = "agentvet_pack/skills.py:31", class = "ScanL1Skill" }
+agentvet_l2 = { file = "agentvet_pack/skills.py:35", class = "ScanL2Skill" }
+agentvet_l3 = { file = "agentvet_pack/skills.py:39", class = "ScanL3Skill" }
+agentvet_l4 = { file = "agentvet_pack/skills.py:43", class = "ScanL4Skill" }

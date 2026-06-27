@@ -1,0 +1,35 @@
+# Docker ignore
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Dev artifacts
+.git/
+.gitignore
+.github/
+.venv/
+venv/
+
+# Tests
+tests/
+
+# Local runtime
+runtime/
+.hiveswarm/
+
+# Docs
+docs/*.md
+README.md
+CHANGELOG.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log

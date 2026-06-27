@@ -1,0 +1,17 @@
+[project]
+name = "hiveswarm-skill-agentvet"
+version = "0.1.0"
+description = "HiveSwarm skill pack: AI Agent security scanner (L1-L4) via AgentVet"
+requires-python = ">=3.10"
+
+# 关键: AgentVet 是 local path dep, 跑 hive 时一起装
+dependencies = [
+    "agentvet @ file://../../../../Desktop/agentvet",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

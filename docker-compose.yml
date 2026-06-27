@@ -1,0 +1,40 @@
+# HiveSwarm — 双服务编排
+# 用法: docker compose up
+
+services:
+  gateway:
+    build: .
+    container_name: hive-gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - hive-data:/app/runtime
+    environment:
+      - HIVESWARM_RUNTIME_DIR=/app/runtime
+      - HIVESWARM_TOKENS=mvp-token-admin:admin,mvp-token-dev:developer,mvp-token-view:viewer
+    command: ["python", "-c", "from gateway.app import create_app; import uvicorn; uvicorn.run(create_app(), host='0.0.0.0', port=8000, log_level='info')"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  dashboard:
+    build: .
+    container_name: hive-dashboard
+    ports:
+      - "7860:7860"
+    volumes:
+      - hive-data:/app/runtime
+    environment:
+      - HIVESWARM_RUNTIME_DIR=/app/runtime
+      - GRADIO_SERVER_NAME=0.0.0.0
+    # Run Gradio dashboard (loads pool from same data dir)
+    command: ["python", "-c", "from stub.dashboard_gradio import GradioDashboard; GradioDashboard().launch()"]
+    depends_on:
+      gateway:
+        condition: service_started
+
+volumes:
+  hive-data:
+    driver: local

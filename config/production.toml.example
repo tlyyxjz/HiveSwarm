@@ -1,0 +1,37 @@
+# 公司用 — 占位,实际部署时要重写 [auth] [audit] [billing] [tenant] 等
+# 现阶段所有 service 还是 stub,公司切换时改 1 个 key 即可
+
+# [auth]
+# provider = "company.oauth_sso"
+# issuer = "https://sso.company.com"
+# jwks_url = "https://sso.company.com/.well-known/jwks.json"
+
+# [audit]
+# provider = "company.kafka_audit"
+# brokers = ["kafka-1:9092", "kafka-2:9092"]
+# topic = "hiveswarm.audit"
+
+# [billing]
+# provider = "company.stripe_meter"
+# api_key = "${STRIPE_API_KEY}"   # 从 env 读
+
+# [tenant]
+# provider = "company.idp_tenant"
+# api_url = "https://idp.company.com"
+
+# [recovery]
+# provider = "company.circuit_breaker"
+# redis_url = "redis://redis:6379/0"
+
+# [telemetry]
+# provider = "company.otel_collector"
+# endpoint = "otel-collector:4317"
+
+# [governance]
+# provider = "company.dlp"
+# endpoint = "https://dlp.company.com"
+# ttl_days = 30    # 30 天自动删 PII
+
+# [memory]
+# backend = "company.qdrant"
+# url = "http://qdrant:6333"

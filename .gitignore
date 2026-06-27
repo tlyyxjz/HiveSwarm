@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# 测试 / 覆盖
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# 项目运行时
+logs/
+*.log
+*.db
+*.sqlite
+*.sqlite3
+data/
+runtime/
+
+# 临时备份（重构冻结点等场景，不入仓）
+backup/
+
+# 生成文件（Agent 测试输出，不入仓）
+output.pptx
+output/

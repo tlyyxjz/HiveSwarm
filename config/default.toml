@@ -1,0 +1,141 @@
+# HiveSwarm 默认配置 — 所有可调参数都在这里,代码不写死
+# 改这里 = 改行为,不动 Python
+
+# ═══════════════════════════════════════════════════════════════
+# Provider 注册表 — 客户在这里配模型，支持任意 Anthropic 兼容端点
+# ═══════════════════════════════════════════════════════════════
+
+[[providers]]
+name = "ollama-local"
+type = "ollama"               # ollama | anthropic | openai
+base_url = "http://127.0.0.1:11434"
+model = "qwen3:8b"
+api_key = ""                  # Ollama 无需 key
+tier = "enterprise"           # free | standard | premium | enterprise
+description = "本地部署 — 数据不出企业内网"
+
+[[providers]]
+name = "deepseek"
+type = "anthropic"
+base_url = "https://api.deepseek.com/anthropic"
+model = "DeepSeek-v4-pro[1m]"
+api_key = "${DEEPSEEK_API_KEY}"
+tier = "standard"
+description = "DeepSeek V4 — 高性价比云端模型"
+
+[[providers]]
+name = "minimax"
+type = "anthropic"
+base_url = "https://api.minimaxi.com/anthropic"
+model = "MiniMax-M3"
+api_key = "${MINIMAX_API_KEY}"
+tier = "standard"
+description = "MiniMax M3 — 长上下文推理"
+
+[[providers]]
+name = "openai"
+type = "openai"
+base_url = "https://api.openai.com/v1"
+model = "gpt-4o-mini"
+api_key = "${OPENAI_API_KEY}"
+tier = "standard"
+description = "OpenAI GPT-4o-mini — 通用模型"
+
+[brain]
+# 大脑用哪个 LLM provider (改 module path 即可换实现)
+llm_provider = "stub.llm_litellm"
+# 当前激活的 provider (对应上方 [[providers]] name)
+active_provider = "ollama-local"
+# 嵌入模型（语义搜索用）
+embedding_provider = "ollama-local"
+embedding_model = "bge-m3:latest"
+# 拆任务时给 LLM 的 system prompt
+planner_system_prompt = """你是一个任务调度中心.
+输入: 用户的自然语言任务
+输出: 严格的 JSON,字段:
+{
+  "task_id": "短hash",
+  "rationale": "为什么这么拆",
+  "subtasks": [
+    {"sub_id": "s1", "intent": "做什么", "required_skills": ["skill_a"], "depends_on": [], "acceptance": "怎么算通过"}
+  ]
+}"""
+
+# Ollama 本地模型 — 零 Token，自动检测。控制方式：
+#   环境变量 OLLAMA_API_BASE（默认 http://127.0.0.1:11434）
+#   环境变量 OLLAMA_MODEL（默认 qwen3:8b）
+#   不设或不可达 → 自动跳过，走下一优先级
+
+[repair]
+# 修补策略: switch_first | reassemble_first | halt_first
+strategy = "switch_first"
+# 失败重试上限
+max_retries = 3
+# 重试间隔(秒)
+retry_delay_s = 2.0
+# 触发人审的失败次数阈值
+pause_threshold = 5
+
+[monitor]
+# 事件总线
+bus = "stub.bus_local"
+# 战情看板
+dashboard = "stub.dashboard_gradio"
+dashboard_port = 7860
+# 日志路径
+log_path = "~/.hiveswarm/logs/events.jsonl"
+log_max_size_mb = 50
+
+[memory]
+# 后端: stub.store_sqlite (后续加 qdrant / redis)
+backend = "stub.store_sqlite"
+# SQLite 路径
+path = "~/.hiveswarm/memory.db"
+# 记录过期天数 (0 = 永久)
+ttl_days = 0
+# 嵌入模型 (Ollama /api/embed 用的 model 字段)
+embedding_model = "bge-m3:latest"
+# 语义搜索单批嵌入上限 (超过则分批)
+batch_size = 20
+# 时间窗口过滤 (默认 30 天, 0 = 不过滤)
+window_days = 30
+
+[auth]
+# 鉴权: stub.auth_simple (后续加 oauth / jwt)
+provider = "stub.auth_simple"
+# 默认用户
+default_user = "mvp_user"
+
+[audit]
+provider = "stub.audit_logfile"
+path = "~/.hiveswarm/logs/audit.jsonl"
+
+[billing]
+provider = "stub.billing_noop"
+
+[tenant]
+provider = "stub.tenant_default"
+
+[recovery]
+provider = "stub.recovery_retry"
+base_delay_s = 0.1
+
+[telemetry]
+provider = "stub.telemetry_noop"
+
+[governance]
+provider = "stub.governance_permanent"
+
+[gateway]
+host = "0.0.0.0"
+port = 8000
+workers = 1
+log_level = "info"
+
+# ── 技能包(独立 pip install,这里只列允许加载的) ──
+[skills]
+enabled = [
+    "hiveswarm_skill_agentvet",
+    "hiveswarm_skill_crawler",
+    "hiveswarm_skill_ppt",
+]

@@ -1,0 +1,24 @@
+# MVP 配置 — 全 stub,本地跑,不需要任何外部服务
+# 测试 / 第一次跑用这份
+
+# 不重写所有 key,只 override 必要的
+[brain]
+planner_system_prompt = """MVP 拆任务器 — 输出必须严格 JSON,subtasks 数组不能为空."""
+
+[repair]
+strategy = "switch_first"
+max_retries = 2           # MVP 短点
+pause_threshold = 3
+
+[monitor]
+log_path = "~/.hiveswarm/mvp/logs/events.jsonl"
+dashboard_port = 7861     # 跟 default 错开,避免撞端口
+
+[memory]
+path = "~/.hiveswarm/mvp/memory.db"
+
+[audit]
+path = "~/.hiveswarm/mvp/logs/audit.jsonl"
+
+[auth]
+default_user = "mvp"
