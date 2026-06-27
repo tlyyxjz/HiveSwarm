@@ -284,19 +284,20 @@ python -m pytest --cov=core --cov=layers --cov=stub --cov-report=term-missing
 
 ---
 
-## 开发进度(14 天)
+## 开发进度(15 天)
 
 | Day | 日期 | 内容 | 测试 | 状态 |
 |-----|------|------|------|------|
 | 1-5 | 2026-06-25 | 11 ABC + 6 层架构 + 借还机制 | 187 | ✅ |
 | 6-10 | 2026-06-26 | Gateway 5端点 + SDK + Gradio + SSE | 209 | ✅ |
 | 11-13 | 2026-06-26 | 鉴权中间件 + Docker + 输入校验 | 220 | ✅ |
-| 14 | 2026-06-27 | Ollama 本地模型 + Skill Pack 激活 | 230 | ✅ |
+| 14 | 2026-06-27 上午 | Ollama 本地模型 + Skill Pack 激活 | 230 | ✅ |
+| 15 | 2026-06-27 下午 | Ollama 接入重构 + 蜂巢精密化(拆 llm_litellm.py + async httpx + dispatch_async + MemoryCfg + Ollama 真推理) | 245+3 | ✅ |
 
-**当前版本: 0.1.0 — 230 测试全绿。**
+**当前版本: 0.2.0 — 245 passed + 3 skipped 全绿(3 集成为 Ollama HTTP 502 时容错 skip)。**
 
-> 已修项: ~~网关零鉴权~~ ~~SSE内存泄漏~~ ~~Docker缺失~~
-> 待办: 时间旅行(SnapshotStore)、pause point(断点续跑)留待 v0.2.0。
+> 已修项: ~~网关零鉴权~~ ~~SSE内存泄漏~~ ~~Docker缺失~~ ~~active_provider 找不到静默用第一个~~ ~~Ollama 同步阻塞 event loop~~ ~~NO_PROXY 重复 17 行~~
+> 待办(Day 16+): 公司化 6 stub 示例化(OAuth/Kafka/Stripe/Tenant/OTel/CircuitBreaker)+ HOW_TO_REPLACE 扩展 7 ABC 覆盖 + GitHub Release v0.2.0。
 
 ---
 

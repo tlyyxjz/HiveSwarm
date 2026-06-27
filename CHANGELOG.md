@@ -10,11 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 ## [Unreleased]
 
 ### Added
-- **Ollama 本地模型接入** (`stub/llm_litellm.py`): LiteLLM 路由新增 Ollama 优先级，自动检测 `OLLAMA_API_BASE`（默认 `http://127.0.0.1:11434`），通过 `httpx.GET /api/tags` 探测可用性，不可达则跳过。模型默认 `qwen3:8b`，由 `OLLAMA_MODEL` 环境变量控制。
-- **语义搜索** (`layers/memory/recall.py`): 新增 `recall_semantic()` 函数，通过 Ollama `bge-m3` 嵌入模型做批量文本嵌入，余弦相似度匹配历史记忆记录，单次批量嵌入避免 N+1 问题。API 不可达时返回空列表不抛异常。
-- **Ollama 配置文档** (`config/default.toml`): 新增 `[brain]` 下的 Ollama 配置注释块，说明环境变量控制方式和自动检测逻辑。
-- **NO_PROXY 绕过** (`stub/llm_litellm.py`, `layers/memory/recall.py`): localhost Ollama 请求自动 bypass 系统代理，通过临时 `NO_PROXY` 上下文管理器实现，请求结束后恢复原值。
-- **LLM 优先级完整链**: MiniMax M3 > Ollama (bge-m3 嵌入 + qwen3:8b 对话) > OpenAI > Anthropic > MockBrain 降级。
+- **拆 `stub/llm_litellm.py` → `dispatch` 入口 + 新 `stub/llm_providers.py` 三协议适配器**：anthropic/ollama/openai 统一签名 `(provider, messages, **kwargs) -> str`，Ollama 用 httpx.AsyncClient + await 异步调用（替代同步 urllib 阻塞 event loop）。
+- **NO_PROXY 单一实现** (`stub/llm_providers.py`)：上下文管理器唯一实现，`layers/memory/recall.py` 改为 `from stub.llm_providers import _no_proxy_for_localhost` 复用，消除 DRY 违反。
+- **全部 `except` 加 `exc_info=True`**：dispatch / dispatch_async / chat env_fallback / planner / recall 共 8 处异常日志增强，便于事后诊断。
+- **`MemoryCfg` dataclass** (`stub/config_loader.py` + `config/default.toml`)：新增 `embedding_model` / `batch_size=20` / `window_days=30` 三个字段，`recall_semantic` 加批量嵌入 + 时间窗口过滤避免 OOM。
+- **`dispatch_async` + `_has_key` 可达性 ping**：新加 `dispatch_async` 修复 gateway async loop 冲突；`LLMBrain._has_key` 改用 `httpx.AsyncClient` 短超时真测 Ollama 端口，不只看 cfg 注册表是否存在。
+- **三玖工作方式规则** (`~/.claude/rules/ollama-usage.md`)：91 行规则文件，下次会话生效——简单任务走 Ollama / 代码改动派 PI-dev / 模板文档 Ollama 起草 + 主线程校。
+
+### Changed
+- `stub/llm_litellm.py` 从 264 行精简到 212 行（含 50 行向后兼容 shim，删会破坏旧测试）。
+- `stub/llm_providers.py` 新文件 147 行，三协议适配器 + 统一接口 + 唯一 NO_PROXY 实现。
+- `layers/brain/planner.py` 218 → 223 行（`_extract_json` 第 3 条正则改非贪婪 + exc_info 全覆盖）。
+- `layers/memory/recall.py` 135 → 172 行（删 NO_PROXY 重复 + 加 batch_size / 时间窗口过滤）。
+
+### Fixed
+- **NO_PROXY 重复实现删除**：之前 `llm_litellm.py` 和 `recall.py` 各有一份 17 行 NO_PROXY contextmanager，改 import 复用后消除。
+- **Ollama 同步阻塞 → async**：`_call_ollama` 改用 `httpx.AsyncClient + await`，不再阻塞 event loop（长任务跑批时全部并发请求不再被串行化）。
+- **`active_provider` 配错静默用第一个** → 抛 `ConfigurationError`（实现细节：dispatch 配置驱动失败不再 fallthrough 到 env_fallback 静默降级）。
 
 ---
 
