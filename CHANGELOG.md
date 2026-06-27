@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ---
 
+## [0.2.0] - 2026-06-28
+
+### Added
+- **6 公司化生产级 stub** (`stub/`):
+  - `auth_oauth.py` — OAuth2/JWT 鉴权，PyJWKS + RS256 签名验证，TYPE_CHECKING 软依赖
+  - `audit_kafka.py` — confluent_kafka.Producer + JSONL 本地降级，失败不阻塞业务
+  - `billing_stripe.py` — stripe.Charge 按 token 计量 + threading.Lock 保护本地累计
+  - `tenant_multi.py` — 多租户隔离 + threading.Lock 保护共享缓存 + 跨租户 PermissionError
+  - `observability_otel.py` — opentelemetry-sdk 适配 + 本地环形缓冲降级
+  - `recovery_circuit.py` — CircuitBreaker 状态机 (CLOSED→OPEN→HALF_OPEN→CLOSED) + Lock 保护
+- **6 单测文件** (`tests/unit/`) 共 33 条测试 — 覆盖 ABC 实现 / 正常路径 / 异常降级 / 并发安全
+- **HOW_TO_REPLACE.md 扩到 11 ABC 全覆盖** (409 → 881 行) — 新增 Skill / Agent / Brain / RecoveryStrategy / Tracer / Governance 6 场景
+- **`stub/recovery_circuit.py`** — 生产可用本地 CircuitBreaker，5 次失败熔断，冷却后半开恢复
+
+### Changed
+- 测试基线: 245 → 278 passed (+ 33 新单测), 3 skipped
+- HOW_TO_REPLACE.md: 5 → 11 ABC 全覆盖对照表
+- `stub/services.py` 无改动 (按设计: 加新 stub 即可,核心代码 0 修改)
+
+### Fixed
+- 五关门禁全过: DRY ✅ / 异常(exc_info 全覆盖)✅ / 线程(Lock 保护共享状态)✅ / 资源(TYPE_CHECKING 软依赖)✅ / 验证(278+3)✅
+
+---
+
 ## [Unreleased]
 
 ### Added
@@ -121,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
   - Integration: 8 条（test_work_e2e 161 行 / test_brain_work_e2e 98 行）
   - E2E: 3 条（test_full_hiveswarm 210 行——6 层全链 Brain→Work→Inspect→Repair→Monitor→Memory）
 
-[Unreleased]: https://github.com/sanjiu/hiveswarm/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/sanjiu/hiveswarm/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/sanjiu/hiveswarm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/sanjiu/hiveswarm/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/sanjiu/hiveswarm/releases/tag/v0.0.1
