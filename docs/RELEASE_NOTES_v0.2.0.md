@@ -1,34 +1,43 @@
 # v0.2.0 Release Notes (2026-06-28)
 
-> Day 15 蜂巢 Agent 回报后填充实际内容。本文件为占位骨架。
+HiveSwarm v0.2.0 brings Ollama local model integration, configurable LLM dispatch, and the first stable multi-agent framework release.
 
 ## ✨ Added
 
-- **Ollama 本地模型接入** — `stub/llm_providers.py` 配置驱动 dispatch，支持 qwen3:8b + bge-m3 embedding
-- **6 个公司化 stub 示例** — OAuth2/Kafka/Stripe/多租户/OpenTelemetry/Circuit-breaker
-- **HOW_TO_REPLACE.md 扩展到 11 ABC 全覆盖** — 替换指南补完 Store/Governance/Memory/EventBus/SkillPool/Brain 6 场景
-- **首次 git 提交 + v0.2.0 tag** — 仓库从空到正式版本
+- **Refactored `stub/llm_litellm.py` + new `stub/llm_providers.py`** — three protocol adapters (anthropic / ollama / openai) with unified signature `(provider, messages, **kwargs) -> str`
+- **Async httpx Ollama support** — replaces sync `urllib`, no more event loop blocking
+- **`NO_PROXY` DRY** — single implementation in `stub/llm_providers.py`, reused via import (was duplicated 17 lines × 2 files)
+- **`MemoryCfg` dataclass + `batch_size=20` + `window_days=30`** — `recall_semantic` now supports batched embedding and time-window filtering
+- **`dispatch_async`** — fixes gateway async loop conflict (`asyncio.run` inside running loop warning)
+- **`_has_key` Ollama reachability ping** — actually probes Ollama port instead of just checking cfg registration
+- **三玖 working rules `~/.claude/rules/ollama-usage.md`** — Ollama-first workflow, HTTP fallback to CLI, 91 行规则下次会话生效
 
 ## 🔧 Changed
 
-- **重构 stub/llm_litellm.py** — 配置驱动 dispatch(cfg)，去除硬编码
-- **拆出 stub/llm_providers.py** — provider 注册表独立维护
-- **CHANGELOG.md** — 补 v0.2.0 patch 段（245 → 263 测试基线）
+- `stub/llm_litellm.py` 264 → 212 行 (含 50 行 backward-compatible shim, 删除会破坏旧测试)
+- `stub/llm_providers.py` 新文件 147 行 — provider registry + unified adapters + 唯一 NO_PROXY 实现
+- `layers/brain/planner.py` 218 → 223 行 — `_extract_json` 第 3 条正则改非贪婪 + `exc_info=True` 全覆盖
+- `layers/memory/recall.py` 135 → 172 行 — 删 NO_PROXY 重复 + 加 batch_size / 时间窗口过滤
+- 测试基线 230 → 245 passed (+ 15 单测)
 
 ## 🐛 Fixed
 
-- **SSE 取消订阅修复** — 客户端断开自动 unsubscribe，防止内存泄漏
-- **active_provider 找不到抛 ConfigurationError** — 之前静默返回默认
-- **Ollama 集成测试跳过逻辑** — 不可达时显式 skip 而非 fail
+- **NO_PROXY 重复实现删除** — `llm_litellm.py` 和 `recall.py` 各 17 行重复 contextmanager → import 复用
+- **Ollama 同步阻塞** — `_call_ollama` 改 async，长任务并发请求不再串行化
+- **`active_provider` 找不到静默用第一个** → 抛 `ConfigurationError`
+- **`dispatch` 配置驱动失败不再静默 fallthrough 到 env_fallback**
+- **Ollama HTTP 502 根因诊断**: `ollama-bridge.py` 僵尸 PID 44968 占着 11435 → taskkill 释放 + `OLLAMA_HOST=127.0.0.1:11435` 永久环境变量 + curl `--noproxy '*'` 绕开系统 `HTTP_PROXY=127.0.0.1:7897`
 
 ## 📊 Stats
 
-- 测试: 245 → 263 passed (+ 18 新单测)，3 skipped (Ollama 离线)
-- stub 文件: 6 占位 → 12 完整（含 6 公司化真实示例）
-- 文档: HOW_TO_REPLACE.md 409 行 → < 600 行
+- 测试: 230 → 245 passed (+ 15 新单测), 3 skipped (Ollama HTTP 502 容错)
+- git commits: 0 → 2 (`de86fff` 初始 + `6468848` docs)
+- 五关门禁全过: DRY ✅ / 异常(exc_info 全覆盖)✅ / 线程(无新共享数据)✅ / 资源(import 顶部 1 次)✅ / 验证(245+3)✅
+- 300 行硬规全守: 最大 293 行 (`stub/config_loader.py`)
 
 ## ⚠️ Known Limitations
 
-- 端到端 docker compose up 未真跑（Windows 无 WSL）
-- confluent_kafka / stripe / PyJWT 用 TYPE_CHECKING 软依赖，未强制安装
-- gh release 依赖 GitHub CLI 登录态
+- 端到端 docker compose up 未真跑 (Windows 无 WSL)
+- Ollama HTTP 调用必须 `curl --noproxy '*'` 绕开系统 HTTP_PROXY
+- qwen3:8b 8B 模型在 strict format 任务上"健谈"——`thinking` 模式默认开吃 num_predict，主线程手工校
+- confluent_kafka / stripe / PyJWT 等真实集成库用 TYPE_CHECKING 软依赖，待 Day 16+ 派 day15-exec Agent 补 6 公司化 stub
