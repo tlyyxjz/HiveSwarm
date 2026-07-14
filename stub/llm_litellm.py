@@ -173,9 +173,10 @@ def _resolve_minimax() -> tuple[str, str, str] | None:
 
 
 def _env_fallback(messages: list[dict], model: str = "", **kwargs: Any) -> str:
-    """环境变量回退 (向后兼容 — 老代码可能不传 cfg)."""
+    """环境变量回退 (向后兼容 — 老代码可能不传 cfg).
+    公司版默认禁用 Ollama, 此函数也不再查 Ollama.
+    """
     import litellm
-    from stub.llm_providers import _call_ollama as _ollama_handler
 
     key = os.getenv("MINIMAX_API_KEY", "")
     if key:
@@ -189,20 +190,6 @@ def _env_fallback(messages: list[dict], model: str = "", **kwargs: Any) -> str:
             **kwargs,
         )
         return resp.choices[0].message.content or ""
-
-    ollama = resolve_ollama()
-    if ollama:
-        base, ollama_model = ollama
-        from stub.config_loader import ProviderCfg
-
-        prov = ProviderCfg(
-            name="ollama-fallback", type="ollama",
-            base_url=base, model=ollama_model, api_key="",
-        )
-        coro = _ollama_handler(prov, messages, **kwargs)
-        if asyncio.iscoroutine(coro):
-            return asyncio.run(coro)
-        return coro
 
     if os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY"):
         resp = litellm.completion(

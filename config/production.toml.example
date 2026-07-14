@@ -1,37 +1,136 @@
-# 公司用 — 占位,实际部署时要重写 [auth] [audit] [billing] [tenant] 等
-# 现阶段所有 service 还是 stub,公司切换时改 1 个 key 即可
+# HiveSwarm 公司生产配置 — 真实示例
+#
+# 使用方法:
+#   1. 复制此文件: cp production.toml.example production.toml
+#   2. 填入实际 API Key / 域名
+#   3. 启动: python -m gateway --config config/production.toml
+#
+# 关键区别 vs default.toml:
+#   - active_provider 默认是 MiniMax M3（蜂巢原生模型）
+#   - 不启用 Ollama（[local] enabled = false）
+#   - 多租户开启 ([tenant] provider 替换为 company.idp_tenant)
+#   - 计费接入 ([billing] provider 替换为 company.stripe_meter)
 
-# [auth]
-# provider = "company.oauth_sso"
-# issuer = "https://sso.company.com"
-# jwks_url = "https://sso.company.com/.well-known/jwks.json"
+# ═══════════════════════════════════════════════════════════════
+# Provider 注册表 — 公司可启用的模型（不含 Ollama）
+# ═══════════════════════════════════════════════════════════════
 
-# [audit]
-# provider = "company.kafka_audit"
-# brokers = ["kafka-1:9092", "kafka-2:9092"]
-# topic = "hiveswarm.audit"
+[[providers]]
+name = "minimax"
+type = "anthropic"
+base_url = "https://api.minimaxi.com/anthropic"
+model = "MiniMax-M3"
+api_key = "${MINIMAX_API_KEY}"
+tier = "enterprise"
+description = "蜂巢原生模型 M3 — 默认首选"
 
-# [billing]
-# provider = "company.stripe_meter"
-# api_key = "${STRIPE_API_KEY}"   # 从 env 读
+[[providers]]
+name = "deepseek"
+type = "anthropic"
+base_url = "https://api.deepseek.com/anthropic"
+model = "DeepSeek-V4-pro"
+api_key = "${DEEPSEEK_API_KEY}"
+tier = "standard"
+description = "DeepSeek V4 — 高性价比备选"
 
-# [tenant]
-# provider = "company.idp_tenant"
-# api_url = "https://idp.company.com"
+[[providers]]
+name = "claude"
+type = "anthropic"
+base_url = "https://api.anthropic.com"
+model = "claude-sonnet-4.6"
+api_key = "${ANTHROPIC_API_KEY}"
+tier = "premium"
+description = "Claude Sonnet 4.6 — 顶级推理"
 
-# [recovery]
-# provider = "company.circuit_breaker"
-# redis_url = "redis://redis:6379/0"
+[[providers]]
+name = "openai"
+type = "openai"
+base_url = "https://api.openai.com/v1"
+model = "gpt-4o"
+api_key = "${OPENAI_API_KEY}"
+tier = "premium"
+description = "OpenAI GPT-4o — 多模态备选"
 
-# [telemetry]
-# provider = "company.otel_collector"
-# endpoint = "otel-collector:4317"
+[brain]
+llm_provider = "stub.llm_litellm"
+active_provider = "minimax"          # 公司版默认
+embedding_provider = "minimax"
+embedding_model = "minimax-embed"
+planner_system_prompt = """你是任务调度中心.
+输入: 用户的自然语言任务
+输出: 严格 JSON,字段见 default.toml"""
 
-# [governance]
-# provider = "company.dlp"
-# endpoint = "https://dlp.company.com"
-# ttl_days = 30    # 30 天自动删 PII
+[repair]
+strategy = "switch_first"
+max_retries = 3
+retry_delay_s = 2.0
+pause_threshold = 5
 
-# [memory]
-# backend = "company.qdrant"
-# url = "http://qdrant:6333"
+[monitor]
+bus = "stub.bus_local"
+dashboard = "stub.dashboard_gradio"
+dashboard_port = 7860
+log_path = "~/.hiveswarm/logs/events.jsonl"
+log_max_size_mb = 100
+
+[memory]
+backend = "stub.store_sqlite"
+path = "~/.hiveswarm/memory.db"
+ttl_days = 90
+embedding_model = "minimax-embed"
+batch_size = 50
+window_days = 30
+
+# ── 多租户（公司版必须替换）──────────────────────────────────
+[auth]
+provider = "company.oauth_sso"
+issuer = "https://sso.company.com"
+jwks_url = "https://sso.company.com/.well-known/jwks.json"
+default_user = ""
+
+[audit]
+provider = "company.kafka_audit"
+brokers = ["kafka-1:9092", "kafka-2:9092"]
+topic = "hiveswarm.audit"
+
+[billing]
+provider = "company.stripe_meter"
+api_key = "${STRIPE_API_KEY}"
+
+[tenant]
+provider = "company.idp_tenant"
+api_url = "https://idp.company.com"
+
+[recovery]
+provider = "company.circuit_breaker"
+redis_url = "redis://redis:6379/0"
+base_delay_s = 0.5
+
+[telemetry]
+provider = "company.otel_collector"
+endpoint = "otel-collector:4317"
+
+[governance]
+provider = "company.dlp"
+endpoint = "https://dlp.company.com"
+ttl_days = 30
+
+# ── 本地开关：公司版必须 false ───────────────────────────────
+[local]
+enabled = false                      # 禁止加载 Ollama
+data_dir = "~/.hiveswarm/prod"
+
+# ── 网关 ─────────────────────────────────────────────────────
+[gateway]
+host = "0.0.0.0"
+port = 8000
+workers = 4
+log_level = "info"
+
+# ── 技能包（公司可裁剪）────────────────────────────────────
+[skills]
+enabled = [
+    "hiveswarm_skill_agentvet",
+    "hiveswarm_skill_crawler",
+    "hiveswarm_skill_ppt",
+]

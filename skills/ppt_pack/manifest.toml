@@ -1,0 +1,13 @@
+"""Skill manifest — 描述技能包版本兼容性."""
+[pack]
+name = "hiveswarm-skill-ppt"
+version = "0.1.0"
+api_version = "1.0"
+min_core_version = "0.1.0"
+description = "PPT 制作 4 步流水线: 数据采集 / 大纲 / 排版 / 导出"
+
+[skills]
+data_collect = { file = "ppt_pack/skills/collect.py:DataCollectSkill", class = "DataCollectSkill" }
+outline      = { file = "ppt_pack/skills/outline.py:OutlineSkill", class = "OutlineSkill" }
+layout       = { file = "ppt_pack/skills/layout.py:LayoutSkill", class = "LayoutSkill" }
+export       = { file = "ppt_pack/skills/export.py:ExportSkill", class = "ExportSkill" }

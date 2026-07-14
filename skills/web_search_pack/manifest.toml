@@ -1,0 +1,10 @@
+"""Skill manifest — 描述技能包版本兼容性."""
+[pack]
+name = "hiveswarm-skill-web-search"
+version = "0.1.0"
+api_version = "1.0"
+min_core_version = "0.1.0"
+description = "全网搜索 (DuckDuckGo HTML scrape), 无需 API key"
+
+[skills]
+web_search = { file = "web_search_pack/skills.py:WebSearchSkill", class = "WebSearchSkill" }

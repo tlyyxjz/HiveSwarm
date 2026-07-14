@@ -110,8 +110,11 @@ def _call_openai(provider: "ProviderCfg", messages: list[dict], **kwargs: Any) -
     return resp.choices[0].message.content or ""
 
 
+# Ollama 不默认注册到 _PROTOCOL_DISPATCH（公司版禁用）
+# 仅当 config [local] enabled = true 时, 启动期动态加入:
+#   from stub.llm_providers import _PROTOCOL_DISPATCH, _call_ollama
+#   _PROTOCOL_DISPATCH["ollama"] = _call_ollama
 _PROTOCOL_DISPATCH = {
-    "ollama": _call_ollama,
     "anthropic": _call_anthropic,
     "openai": _call_openai,
 }

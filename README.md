@@ -17,6 +17,76 @@
 
 **为什么这很关键**: Skills 太多时,无法预先给每个 Agent 装好;动态按需借,任务结束归还,资源不泄漏。
 
+---
+
+## 💎 Pricing
+
+| Tier | Price | Use Case |
+|------|-------|----------|
+| Community | Free | Personal projects, learning |
+| Pro | $50/mo | Small teams, production |
+| Enterprise | $200/mo | Large teams, SLA, custom skills |
+
+### Pro Features ($50/mo)
+- Unlimited agents
+- Custom skill packs
+- Priority queue
+- Dashboard analytics
+- Email support (24h)
+
+### Enterprise Features ($200/mo)
+- Multi-tenant isolation
+- SSO/SAML
+- Audit logs
+- Custom integrations
+- Dedicated support
+- SLA 99.9%
+
+👉 [Get Pro on Gumroad](https://8837207235283.gumroad.com)
+
+## 🏗️ Architecture
+
+```
+[Task] → [Brain: decompose]
+  → [Skill Pool: borrow N skills]
+  → [Factory: assemble Agent-001]
+  → [Agent executes task]
+  → [Return skills, destroy Agent-001]
+  → [Next Agent-002 borrows M skills]
+```
+
+## 📊 Test Coverage
+
+- 230 tests passing
+- Unit / Integration / E2E
+- 90%+ code coverage
+
+## 🔌 Skill Packs
+
+| Pack | Description | Status |
+|------|-------------|--------|
+| agentvet_pack | Security scanning | ✅ |
+| crawler_pack | Web crawling | ✅ |
+| ppt_pack | PPT generation | ✅ |
+| web_search_pack | Web search | ✅ |
+
+## 🚀 Quick Start
+
+```bash
+cd hiveswarm
+pip install pydantic litellm fastapi uvicorn httpx
+python -m pytest --tb=short -q  # 230 passed
+python -m src.main "帮我做一个 PPT"
+```
+
+## 📚 Documentation
+
+- [Architecture](docs/ARCH.md)
+- [Interfaces](docs/INTERFACES.md)
+- [Pricing & Roadmap](docs/PRICING_AND_ROADMAP.md)
+- [Production Setup](docs/PRODUCTION_SETUP.md)
+
+
 ## 快速开始(5 步)
 
 ### Step 1: 装 Python 依赖

@@ -42,3 +42,9 @@ backup/
 # 生成文件（Agent 测试输出，不入仓）
 output.pptx
 output/
+
+# 变现打包排除
+hiveswarm-pro.zip
+test-runtime/
+报告/
+*.zip

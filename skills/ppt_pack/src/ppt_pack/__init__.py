@@ -4,7 +4,7 @@
   - data_collect: 收集数据（stub 模板）
   - outline:     写大纲（stub JSON）
   - layout:      排版渲染（stub Markdown）
-  - export:      导出文件（stub 路径）
+  - export:      导出文件（python-pptx 真实生成 .pptx）
 
 用法:
     from ppt_pack import DataCollectSkill

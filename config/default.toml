@@ -3,16 +3,8 @@
 
 # ═══════════════════════════════════════════════════════════════
 # Provider 注册表 — 客户在这里配模型，支持任意 Anthropic 兼容端点
+# Ollama 已移到 config/providers.local.toml（dev 专用, 默认禁用）
 # ═══════════════════════════════════════════════════════════════
-
-[[providers]]
-name = "ollama-local"
-type = "ollama"               # ollama | anthropic | openai
-base_url = "http://127.0.0.1:11434"
-model = "qwen3:8b"
-api_key = ""                  # Ollama 无需 key
-tier = "enterprise"           # free | standard | premium | enterprise
-description = "本地部署 — 数据不出企业内网"
 
 [[providers]]
 name = "deepseek"
@@ -45,10 +37,10 @@ description = "OpenAI GPT-4o-mini — 通用模型"
 # 大脑用哪个 LLM provider (改 module path 即可换实现)
 llm_provider = "stub.llm_litellm"
 # 当前激活的 provider (对应上方 [[providers]] name)
-active_provider = "ollama-local"
+active_provider = "minimax"
 # 嵌入模型（语义搜索用）
-embedding_provider = "ollama-local"
-embedding_model = "bge-m3:latest"
+embedding_provider = "minimax"
+embedding_model = "minimax-embed"
 # 拆任务时给 LLM 的 system prompt
 planner_system_prompt = """你是一个任务调度中心.
 输入: 用户的自然语言任务
@@ -61,10 +53,9 @@ planner_system_prompt = """你是一个任务调度中心.
   ]
 }"""
 
-# Ollama 本地模型 — 零 Token，自动检测。控制方式：
-#   环境变量 OLLAMA_API_BASE（默认 http://127.0.0.1:11434）
-#   环境变量 OLLAMA_MODEL（默认 qwen3:8b）
-#   不设或不可达 → 自动跳过，走下一优先级
+# Ollama 本地模型 — 默认禁用，公司版绝对不加载。
+# 启用方法：include providers.local.toml 或设 [local] enabled = true
+# 控制变量：[local] enabled (default.toml) / OLLAMA_API_BASE / OLLAMA_MODEL
 
 [repair]
 # 修补策略: switch_first | reassemble_first | halt_first
@@ -125,6 +116,11 @@ provider = "stub.telemetry_noop"
 
 [governance]
 provider = "stub.governance_permanent"
+
+# ── 本地开关：公司版必须 false ───────────────────────────────
+[local]
+enabled = false                      # 绝对禁止加载 Ollama
+data_dir = "~/.hiveswarm/default"
 
 [gateway]
 host = "0.0.0.0"

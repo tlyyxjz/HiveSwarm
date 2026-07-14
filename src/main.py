@@ -30,6 +30,7 @@ from stub.services import build_default_services
 from stub.store_sqlite import SQLiteStore
 from layers.memory.store import MemoryStore, MemoryTier
 from layers.work.skill_registry import register_needed_skills
+from layers.report import ReportGenerator
 
 
 def run_demo(
@@ -87,6 +88,24 @@ def run_demo(
 
     # 6. 存 memory
     memory.put(MemoryTier.LONG, f"task:{plan.task_id}", final)
+
+    # 7. 生成详细报告 (Markdown + PDF)
+    try:
+        report_gen = ReportGenerator(bus=bus, memory=memory, reports_dir=str(runtime / "reports"))
+        report = report_gen.generate(
+            task_id=plan.task_id,
+            request=request,
+            result=final,
+            title=f"HiveSwarm 任务报告 · {plan.task_id}",
+        )
+        final["report_md"] = str(report.md_path)
+        final["report_pdf"] = str(report.pdf_path) if report.pdf_path else None
+    except Exception as exc:  # noqa: BLE001
+        # 报告失败不影响主流程
+        import logging as _log
+        _log.warning("ReportGenerator failed: %s", exc)
+        final["report_md"] = None
+        final["report_pdf"] = None
 
     return final
 

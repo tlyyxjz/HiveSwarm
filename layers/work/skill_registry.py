@@ -22,6 +22,7 @@ _log = logging.getLogger(__name__)
 _PLAN_TO_SKILLS = {
     "data_collect", "outline", "layout", "export",
     "agentvet_l1", "agentvet_l2", "agentvet_l3", "agentvet_l4",
+    "web_search",
 }
 
 
@@ -68,6 +69,10 @@ def _try_register_real_skill(pool: SkillPool, name: str) -> bool:
                 "export": "ExportSkill",
             }
             module_name = "ppt_pack.skills"
+        elif name == "web_search":
+            _pack_src = Path(__file__).parent.parent.parent / "skills" / "web_search_pack" / "src"
+            cls_map = {"web_search": "WebSearchSkill"}
+            module_name = "web_search_pack"
         else:
             return False
 

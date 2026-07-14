@@ -1,0 +1,159 @@
+# HiveSwarm 公司接入完整模板
+#
+# 给新接入公司复制改的模板 —— 含 5 个国内 + 3 个国外 LLM provider
+# 公司根据合规要求裁剪 enabled 列表
+
+# ═══════════════════════════════════════════════════════════════
+# LLM Provider 注册表（公司按需启用）
+# ═══════════════════════════════════════════════════════════════
+
+# ── 国内（合规友好）──────────────────────────────────────────
+
+[[providers]]
+name = "deepseek"
+type = "openai"                       # DeepSeek 兼容 OpenAI 协议
+base_url = "https://api.deepseek.com/v1"
+model = "deepseek-chat"
+api_key = "${DEEPSEEK_API_KEY}"
+tier = "standard"
+enabled = true
+description = "DeepSeek-V3 — 高性价比,国内合规"
+
+[[providers]]
+name = "qwen"
+type = "openai"                       # 阿里 DashScope OpenAI 兼容
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+model = "qwen-plus"
+api_key = "${DASHSCOPE_API_KEY}"
+tier = "standard"
+enabled = true
+description = "通义千问 Plus — 阿里云服务"
+
+[[providers]]
+name = "zhipu"
+type = "openai"                       # 智谱 GLM 兼容 OpenAI 协议
+base_url = "https://open.bigmodel.cn/api/paas/v4"
+model = "glm-4-plus"
+api_key = "${ZHIPU_API_KEY}"
+tier = "standard"
+enabled = true
+description = "智谱 GLM-4-Plus — 长上下文"
+
+[[providers]]
+name = "kimi"
+type = "openai"                       # Moonshot Kimi 兼容 OpenAI 协议
+base_url = "https://api.moonshot.cn/v1"
+model = "moonshot-v1-128k"
+api_key = "${MOONSHOT_API_KEY}"
+tier = "premium"
+enabled = true
+description = "Moonshot Kimi — 128K 长上下文"
+
+[[providers]]
+name = "doubao"
+type = "openai"                       # 字节豆包兼容 OpenAI 协议
+base_url = "https://ark.cn-beijing.volces.com/api/v3"
+model = "doubao-pro-256k"
+api_key = "${ARK_API_KEY}"
+tier = "standard"
+enabled = true
+description = "字节豆包 Pro — 长上下文"
+
+# ── 国外（按需启用，注意合规）────────────────────────────────
+
+[[providers]]
+name = "minimax"
+type = "anthropic"
+base_url = "https://api.minimaxi.com/anthropic"
+model = "MiniMax-M3"
+api_key = "${MINIMAX_API_KEY}"
+tier = "enterprise"
+enabled = true
+description = "蜂巢原生 M3 — 默认首选"
+
+[[providers]]
+name = "claude"
+type = "anthropic"
+base_url = "https://api.anthropic.com"
+model = "claude-sonnet-4.6"
+api_key = "${ANTHROPIC_API_KEY}"
+tier = "premium"
+enabled = false                      # 默认禁用,需要时开启
+description = "Claude Sonnet 4.6"
+
+[[providers]]
+name = "openai"
+type = "openai"
+base_url = "https://api.openai.com/v1"
+model = "gpt-4o"
+api_key = "${OPENAI_API_KEY}"
+tier = "premium"
+enabled = false
+description = "OpenAI GPT-4o"
+
+[brain]
+llm_provider = "stub.llm_litellm"
+active_provider = "deepseek"          # 公司可改: minimax/qwen/zhipu/kimi/doubao
+embedding_provider = "qwen"
+embedding_model = "text-embedding-v3"
+planner_system_prompt = """你是任务调度中心."""
+
+# ── 本地开关：公司版必须 false ───────────────────────────────
+[local]
+enabled = false                      # 绝对禁止加载 Ollama
+data_dir = "~/.hiveswarm/company"
+
+# ── 鉴权（公司版必填）───────────────────────────────────────
+[auth]
+provider = "company.oauth_sso"
+issuer = "https://sso.YOUR_COMPANY.com"
+jwks_url = "https://sso.YOUR_COMPANY.com/.well-known/jwks.json"
+
+[audit]
+provider = "company.kafka_audit"
+brokers = ["kafka.YOUR_COMPANY.com:9092"]
+topic = "hiveswarm.audit"
+
+[billing]
+provider = "company.stripe_meter"
+api_key = "${STRIPE_API_KEY}"
+
+[tenant]
+provider = "company.idp_tenant"
+api_url = "https://idp.YOUR_COMPANY.com"
+
+[recovery]
+provider = "company.circuit_breaker"
+redis_url = "redis://redis.YOUR_COMPANY.com:6379/0"
+
+[telemetry]
+provider = "company.otel_collector"
+endpoint = "otel-collector.YOUR_COMPANY.com:4317"
+
+[governance]
+provider = "company.dlp"
+endpoint = "https://dlp.YOUR_COMPANY.com"
+ttl_days = 30
+
+[memory]
+backend = "company.qdrant"
+url = "http://qdrant.YOUR_COMPANY.com:6333"
+embedding_model = "text-embedding-v3"
+
+[monitor]
+bus = "stub.bus_local"
+dashboard = "stub.dashboard_gradio"
+dashboard_port = 7860
+log_path = "~/.hiveswarm/company/logs/events.jsonl"
+
+[gateway]
+host = "0.0.0.0"
+port = 8000
+workers = 4
+log_level = "info"
+
+[skills]
+enabled = [
+    "hiveswarm_skill_crawler",
+    "hiveswarm_skill_ppt",
+]

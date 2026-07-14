@@ -157,16 +157,17 @@ class LLMBrain(Brain):
 
             if _find_provider(self._cfg.brain.active_provider, self._cfg.brain.providers):
                 return True
-        # 2. 环境变量回退
+        # 2. 环境变量回退 (公司版必填)
         import os
 
         if bool(
             os.getenv("MINIMAX_API_KEY")
+            or os.getenv("DEEPSEEK_API_KEY")
             or os.getenv("OPENAI_API_KEY")
             or os.getenv("ANTHROPIC_API_KEY")
         ):
             return True
-        # 3. Ollama 真测可达性 (同步壳包 async ping)
+        # 3. 本地 dev: 仅当 [local] enabled = true 才查 Ollama
         try:
             import asyncio
 
