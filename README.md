@@ -2,6 +2,8 @@
 
 > Multi-agent coordination framework with **dynamic skill equipping** (borrow/return) and **use-and-discard** agents.
 
+> **📌 项目状态**：v0.x 已完成核心机制验证（230 个测试通过：技能借还生命周期、工厂组装、销毁回收）。框架探索阶段收官，主力时间已转向生产化项目——同属「可验证 AI」主线的 [标小智 BidAgent](https://github.com/tlyyxjz/BidAgent) 与开源贡献（[OceanBase PowerContext](https://github.com/oceanbase/powercontext/pull/1483)）。欢迎 fork / issue 讨论，核心设计问题我会持续回复。
+
 ## 核心创新
 
 跟 AutoGen / CrewAI 的核心区别:**Skills are borrowed, not bound.**
