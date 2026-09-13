@@ -1,0 +1,53 @@
+{
+  "task_id": "B04",
+  "group": "C",
+  "injection": "chain.1",
+  "success": false,
+  "escalated": true,
+  "recovery_actions": [
+    "halt_escalate"
+  ],
+  "root_cause_tool": "read_file",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": false,
+      "error": "ToolError('no number at occurrence 1 (found 0)')"
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": false,
+      "error": "ToolError('no number at occurrence 2 (found 0)')"
+    },
+    {
+      "idx": 4,
+      "tool": "calc",
+      "ok": false,
+      "error": "ToolError('not numeric: None')"
+    },
+    {
+      "idx": 5,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:avg.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^AVG:21$"
+    }
+  ],
+  "assertions_total": 4,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": ""
+}

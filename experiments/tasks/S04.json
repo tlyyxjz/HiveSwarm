@@ -1,0 +1,56 @@
+{
+  "id": "S04",
+  "category": "serial",
+  "description": "搜索定位后两数相加",
+  "setup": {
+    "files": {
+      "data.txt": "head\nval:12\nval:30\ntail"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "data.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 2
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s2",
+        "b": "$s3"
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "sum.txt",
+        "content": "SUM:{s4}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:sum.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^SUM:42$"
+      }
+    }
+  ]
+}

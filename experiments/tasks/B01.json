@@ -1,0 +1,41 @@
+{
+  "id": "B01",
+  "category": "branch",
+  "description": "库存<10 走补货分支",
+  "setup": {
+    "files": {
+      "stock.txt": "stock:7"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "stock.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "decision.txt",
+        "content": "RESTOCK:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:decision.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^RESTOCK:7$"
+      }
+    }
+  ]
+}

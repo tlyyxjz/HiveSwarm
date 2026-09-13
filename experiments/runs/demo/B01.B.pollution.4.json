@@ -1,0 +1,41 @@
+{
+  "task_id": "B01",
+  "group": "B",
+  "injection": "pollution.4",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 3,
+      "tool": "write_file",
+      "ok": true,
+      "attempts": 1
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:decision.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^RESTOCK:7$"
+    }
+  ],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": ""
+}

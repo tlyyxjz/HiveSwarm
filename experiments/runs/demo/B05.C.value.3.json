@@ -1,0 +1,40 @@
+{
+  "task_id": "B05",
+  "group": "C",
+  "injection": "value.3",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [
+    "re_observe"
+  ],
+  "root_cause_tool": "calc",
+  "rerun_steps": 3,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "text_search",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "calc",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:alert.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 1,
+  "assertions_verified": 0,
+  "duration_ms": 6,
+  "error": ""
+}

@@ -1,0 +1,47 @@
+{
+  "task_id": "G04",
+  "group": "B",
+  "injection": "value.2",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 3,
+      "tool": "calc",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 4,
+      "tool": "write_file",
+      "ok": true,
+      "attempts": 1
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:absx.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^ABSX:21$"
+    }
+  ],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": ""
+}

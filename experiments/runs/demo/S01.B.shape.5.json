@@ -1,0 +1,42 @@
+{
+  "task_id": "S01",
+  "group": "B",
+  "injection": "shape.5",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 4,
+      "tool": "calc",
+      "ok": false,
+      "retry": true,
+      "error": "ToolError(\"not numeric: {'value': 7.0}\")"
+    }
+  ],
+  "criteria": [],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 1,
+  "error": "ToolError(\"not numeric: {'value': 7.0}\")"
+}

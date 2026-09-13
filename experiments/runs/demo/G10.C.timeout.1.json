@@ -1,0 +1,41 @@
+{
+  "task_id": "G10",
+  "group": "C",
+  "injection": "timeout.1",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [
+    "re_observe"
+  ],
+  "root_cause_tool": "read_file",
+  "rerun_steps": 2,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": false,
+      "error": "ToolTimeout('injected timeout on read_file#1')"
+    },
+    {
+      "idx": 2,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:digest.txt",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "subject": "file:digest.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 3,
+  "assertions_verified": 0,
+  "duration_ms": 5,
+  "error": ""
+}

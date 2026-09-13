@@ -1,0 +1,54 @@
+{
+  "task_id": "G01",
+  "group": "C",
+  "injection": "timeout.1",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [
+    "re_observe"
+  ],
+  "root_cause_tool": "read_file",
+  "rerun_steps": 5,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": false,
+      "error": "ToolTimeout('injected timeout on read_file#1')"
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": false,
+      "error": "ToolError('extract_number needs str, got NoneType')"
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": false,
+      "error": "ToolError('extract_number needs str, got NoneType')"
+    },
+    {
+      "idx": 4,
+      "tool": "calc",
+      "ok": false,
+      "error": "ToolError('not numeric: None')"
+    },
+    {
+      "idx": 5,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:chunks.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 5,
+  "assertions_verified": 0,
+  "duration_ms": 5,
+  "error": ""
+}

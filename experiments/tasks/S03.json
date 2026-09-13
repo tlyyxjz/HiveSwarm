@@ -1,0 +1,43 @@
+{
+  "id": "S03",
+  "category": "serial",
+  "description": "数行数乘 2 写报告",
+  "setup": {
+    "files": {
+      "log.txt": "l1\nl2\nl3\nl4\nl5"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "text_search",
+      "args": {
+        "path": "log.txt",
+        "pattern": "l"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "*",
+        "a": "$s1",
+        "b": 2
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "report.txt",
+        "content": "lines_x2:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:report.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^lines_x2:10$"
+      }
+    }
+  ]
+}

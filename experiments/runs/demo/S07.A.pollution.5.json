@@ -1,0 +1,58 @@
+{
+  "task_id": "S07",
+  "group": "A",
+  "injection": "pollution.5",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "list_dir",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 4,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 5,
+      "tool": "calc",
+      "ok": true
+    },
+    {
+      "idx": 6,
+      "tool": "calc",
+      "ok": true
+    },
+    {
+      "idx": 7,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:agg.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^AGG:42$"
+    }
+  ],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": ""
+}

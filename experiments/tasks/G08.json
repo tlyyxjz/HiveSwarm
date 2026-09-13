@@ -1,0 +1,43 @@
+{
+  "id": "G08",
+  "category": "guard",
+  "description": "重叠匹配语义: aaa 中 aa 命中 1 行",
+  "setup": {
+    "files": {
+      "s.txt": "aaa"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "text_search",
+      "args": {
+        "path": "s.txt",
+        "pattern": "aa"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s1",
+        "b": 0
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "hits.txt",
+        "content": "HITS:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:hits.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^HITS:1$"
+      }
+    }
+  ]
+}

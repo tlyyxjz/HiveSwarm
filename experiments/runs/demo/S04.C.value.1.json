@@ -1,0 +1,50 @@
+{
+  "task_id": "S04",
+  "group": "C",
+  "injection": "value.1",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [
+    "re_observe"
+  ],
+  "root_cause_tool": "calc",
+  "rerun_steps": 5,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": true
+    },
+    {
+      "idx": 4,
+      "tool": "calc",
+      "ok": true
+    },
+    {
+      "idx": 5,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:sum.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 1,
+  "assertions_verified": 0,
+  "duration_ms": 4,
+  "error": ""
+}

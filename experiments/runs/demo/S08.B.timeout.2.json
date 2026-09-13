@@ -1,0 +1,54 @@
+{
+  "task_id": "S08",
+  "group": "B",
+  "injection": "timeout.2",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 3,
+      "tool": "calc",
+      "ok": false,
+      "retry": true,
+      "error": "ToolTimeout('injected timeout on calc#1')"
+    },
+    {
+      "idx": 3,
+      "tool": "calc",
+      "ok": true,
+      "attempts": 2
+    },
+    {
+      "idx": 4,
+      "tool": "write_file",
+      "ok": true,
+      "attempts": 1
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:pay.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": ""
+}

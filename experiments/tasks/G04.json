@@ -1,0 +1,49 @@
+{
+  "id": "G04",
+  "category": "guard",
+  "description": "负数运算: -7*3 取绝对值场景 21",
+  "setup": {
+    "files": {
+      "neg.txt": "v:-7"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "neg.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "*",
+        "a": "$s2",
+        "b": -3
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "absx.txt",
+        "content": "ABSX:{s3}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:absx.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^ABSX:21$"
+      }
+    }
+  ]
+}

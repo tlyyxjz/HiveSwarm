@@ -1,0 +1,41 @@
+{
+  "task_id": "G10",
+  "group": "C",
+  "injection": "shape.1",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [
+    "swap_adapter"
+  ],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "adapted": true
+    },
+    {
+      "idx": 2,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:digest.txt",
+      "ok": true,
+      "error": ""
+    },
+    {
+      "subject": "file:digest.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 3,
+  "assertions_verified": 2,
+  "duration_ms": 3,
+  "error": ""
+}

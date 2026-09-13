@@ -1,0 +1,50 @@
+{
+  "task_id": "G03",
+  "group": "C",
+  "injection": "pollution.3",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [
+    "re_observe"
+  ],
+  "root_cause_tool": "read_file",
+  "rerun_steps": 5,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": true
+    },
+    {
+      "idx": 4,
+      "tool": "calc",
+      "ok": true
+    },
+    {
+      "idx": 5,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:fsum.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^FSUM:0\\.3$"
+    }
+  ],
+  "assertions_total": 1,
+  "assertions_verified": 0,
+  "duration_ms": 5,
+  "error": ""
+}

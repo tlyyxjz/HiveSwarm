@@ -1,0 +1,38 @@
+{
+  "task_id": "S06",
+  "group": "C",
+  "injection": "",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "write_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "append_line",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "append_line",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:list.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 1,
+  "assertions_verified": 1,
+  "duration_ms": 2,
+  "error": ""
+}

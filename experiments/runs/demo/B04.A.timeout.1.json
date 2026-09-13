@@ -1,0 +1,16 @@
+{
+  "task_id": "B04",
+  "group": "A",
+  "injection": "timeout.1",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [],
+  "criteria": [],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 1,
+  "error": "ToolTimeout('injected timeout on read_file#1')"
+}

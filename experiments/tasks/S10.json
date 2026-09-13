@@ -1,0 +1,56 @@
+{
+  "id": "S10",
+  "category": "serial",
+  "description": "数组极差: max-min",
+  "setup": {
+    "files": {
+      "arr.txt": "15 4 9"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "arr.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 2
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "-",
+        "a": "$s2",
+        "b": "$s3"
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "range.txt",
+        "content": "RANGE:{s4}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:range.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^RANGE:11$"
+      }
+    }
+  ]
+}

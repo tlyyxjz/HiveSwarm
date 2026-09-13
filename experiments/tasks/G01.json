@@ -1,0 +1,56 @@
+{
+  "id": "G01",
+  "category": "guard",
+  "description": "精确除法: 128/8=16",
+  "setup": {
+    "files": {
+      "cap.txt": "capacity:128\nchunk:8"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "cap.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 2
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "/",
+        "a": "$s2",
+        "b": "$s3"
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "chunks.txt",
+        "content": "CHUNKS:{s4:g}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:chunks.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^CHUNKS:16$"
+      }
+    }
+  ]
+}

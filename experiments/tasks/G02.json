@@ -1,0 +1,41 @@
+{
+  "id": "G02",
+  "category": "guard",
+  "description": "嵌套路径读写",
+  "setup": {
+    "files": {
+      "a/b/c.txt": "deep:3"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "a/b/c.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "a/b/ok.txt",
+        "content": "DEEP_OK:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:a/b/ok.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^DEEP_OK:3$"
+      }
+    }
+  ]
+}

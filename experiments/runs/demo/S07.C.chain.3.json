@@ -1,0 +1,52 @@
+{
+  "task_id": "S07",
+  "group": "C",
+  "injection": "chain.3",
+  "success": false,
+  "escalated": true,
+  "recovery_actions": [
+    "re_observe",
+    "halt_escalate"
+  ],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "list_dir",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 4,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 5,
+      "tool": "calc",
+      "ok": false,
+      "error": "chain broken"
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:agg.txt",
+      "ok": false,
+      "error": "value not a string"
+    }
+  ],
+  "assertions_total": 2,
+  "assertions_verified": 0,
+  "duration_ms": 0,
+  "error": "halt_escalate: chain broken at calc (step 5)"
+}

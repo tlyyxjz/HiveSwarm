@@ -1,0 +1,38 @@
+{
+  "task_id": "B09",
+  "group": "A",
+  "injection": "chain.1",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:xy.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^X1\\+Y2$"
+    }
+  ],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 1,
+  "error": ""
+}

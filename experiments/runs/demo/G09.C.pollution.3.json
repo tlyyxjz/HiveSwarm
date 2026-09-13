@@ -1,0 +1,62 @@
+{
+  "task_id": "G09",
+  "group": "C",
+  "injection": "pollution.3",
+  "success": true,
+  "escalated": false,
+  "recovery_actions": [
+    "re_observe"
+  ],
+  "root_cause_tool": "read_file",
+  "rerun_steps": 7,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": true
+    },
+    {
+      "idx": 4,
+      "tool": "extract_number",
+      "ok": false,
+      "error": "ToolError('no number at occurrence 3 (found 2)')"
+    },
+    {
+      "idx": 5,
+      "tool": "calc",
+      "ok": true
+    },
+    {
+      "idx": 6,
+      "tool": "calc",
+      "ok": false,
+      "error": "ToolError('not numeric: None')"
+    },
+    {
+      "idx": 7,
+      "tool": "write_file",
+      "ok": true
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:symres.txt",
+      "ok": true,
+      "error": ""
+    }
+  ],
+  "assertions_total": 3,
+  "assertions_verified": 0,
+  "duration_ms": 5,
+  "error": ""
+}

@@ -1,0 +1,42 @@
+{
+  "id": "G05",
+  "category": "guard",
+  "description": "相似文件名: 必须用 v2",
+  "setup": {
+    "files": {
+      "cfg_v1.txt": "old",
+      "cfg_v2.txt": "ver:2"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "cfg_v2.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "used.txt",
+        "content": "USED:v{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:used.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^USED:v2$"
+      }
+    }
+  ]
+}

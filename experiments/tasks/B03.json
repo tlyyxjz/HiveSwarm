@@ -1,0 +1,34 @@
+{
+  "id": "B03",
+  "category": "branch",
+  "description": "按扩展名选处理器",
+  "setup": {
+    "files": {
+      "doc.txt": "payload-1"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "list_dir",
+      "args": {
+        "pattern": "*.txt"
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "handler.txt",
+        "content": "TXT_HANDLER:{s1}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:handler.txt",
+      "validator_name": "min_length",
+      "params": {
+        "n": 12
+      }
+    }
+  ]
+}

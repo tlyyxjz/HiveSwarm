@@ -1,0 +1,70 @@
+{
+  "id": "S07",
+  "category": "serial",
+  "description": "目录确认后聚合三数",
+  "setup": {
+    "files": {
+      "m1.txt": "10",
+      "m2.txt": "20",
+      "m3.txt": "12"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "list_dir",
+      "args": {
+        "pattern": "m*.txt"
+      }
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "m1.txt"
+      }
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "m2.txt"
+      }
+    },
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "m3.txt"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s2",
+        "b": "$s3"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s5",
+        "b": "$s4"
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "agg.txt",
+        "content": "AGG:{s6}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:agg.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^AGG:42$"
+      }
+    }
+  ]
+}

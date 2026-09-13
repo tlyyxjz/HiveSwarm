@@ -1,0 +1,37 @@
+{
+  "task_id": "B06",
+  "group": "C",
+  "injection": "chain.5",
+  "success": false,
+  "escalated": true,
+  "recovery_actions": [
+    "re_observe",
+    "halt_escalate"
+  ],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": false,
+      "error": "chain broken"
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:weather.txt",
+      "ok": false,
+      "error": "value not a string"
+    }
+  ],
+  "assertions_total": 2,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": "halt_escalate: chain broken at extract_number (step 2)"
+}

@@ -1,0 +1,30 @@
+{
+  "task_id": "G07",
+  "group": "B",
+  "injection": "shape.1",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": false,
+      "retry": true,
+      "error": "ToolError('extract_number needs str, got dict')"
+    }
+  ],
+  "criteria": [],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 0,
+  "error": "ToolError('extract_number needs str, got dict')"
+}

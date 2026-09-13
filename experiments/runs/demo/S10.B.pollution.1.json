@@ -1,0 +1,53 @@
+{
+  "task_id": "S10",
+  "group": "B",
+  "injection": "pollution.1",
+  "success": false,
+  "escalated": false,
+  "recovery_actions": [],
+  "root_cause_tool": "",
+  "rerun_steps": 0,
+  "steps": [
+    {
+      "idx": 1,
+      "tool": "read_file",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 2,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 3,
+      "tool": "extract_number",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 4,
+      "tool": "calc",
+      "ok": true,
+      "attempts": 1
+    },
+    {
+      "idx": 5,
+      "tool": "write_file",
+      "ok": true,
+      "attempts": 1
+    }
+  ],
+  "criteria": [
+    {
+      "subject": "file:range.txt",
+      "ok": false,
+      "error": "value does not match pattern: ^RANGE:11$"
+    }
+  ],
+  "assertions_total": 0,
+  "assertions_verified": 0,
+  "duration_ms": 2,
+  "error": ""
+}

@@ -1,0 +1,56 @@
+{
+  "id": "B04",
+  "category": "branch",
+  "description": "偶数对走平均分支",
+  "setup": {
+    "files": {
+      "pair.txt": "30\n12"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "pair.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 2
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "/",
+        "a": "$s2",
+        "b": 2
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "avg.txt",
+        "content": "AVG:{s4:g}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:avg.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^AVG:21$"
+      }
+    }
+  ]
+}
