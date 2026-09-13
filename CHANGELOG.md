@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ---
 
+## [Unreleased]
+
+### Added (2026-09-13, 榫卯 T1.1)
+- **`layers/contract/` — M1 断言契约层**:
+  - `assertion.py` — Assertion (frozen pydantic v2): 谓词白名单锁死在 6 原语, `materialize()` 还原为 Validator 实例
+  - `compiler.py` — AssertionCompiler: 候选断言编不过 6 原语即丢弃 + 拒绝原因记账, `compile_rate` 即"断言可编译率"指标数据源
+  - `ledger.py` — AssertionLedger: 四种溯源边 (derive/depends_on/invalidates/trigger) 依赖图; falsify 只记账不打断执行流; falsified 为终态
+- **单测** `tests/unit/test_contract_{assertion,compiler,ledger}.py` 共 30 条
+
+### Changed
+- **接口变更（字段枚举，只增不改）**: `core.events.EventType` 追加 6 成员 — `assertion.verified/falsified/escalated/degraded`, `repair.applied/rolled_back` (榫卯 M1/M2/M3 用, 见 docs/任务单_T11_断言契约层.md)
+
 ## [0.2.0] - 2026-06-28
 
 ### Added

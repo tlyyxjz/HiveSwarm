@@ -22,6 +22,13 @@ class EventType(str, Enum):
     TASK_FAILED = "task.failed"
     REPAIR_TRIGGERED = "repair.triggered"
     PAUSE_POINT = "pause.point"  # 通知人审
+    # ── 榫卯 M1/M2/M3 (T1.1 起, 只增不改, 见 docs/任务单_T11_断言契约层.md) ──
+    ASSERTION_VERIFIED = "assertion.verified"
+    ASSERTION_FALSIFIED = "assertion.falsified"
+    ASSERTION_ESCALATED = "assertion.escalated"  # M3: L1→L2 升级
+    ASSERTION_DEGRADED = "assertion.degraded"  # M3: 证伪降级
+    REPAIR_APPLIED = "repair.applied"  # M2: 结构修复已落地
+    REPAIR_ROLLED_BACK = "repair.rolled_back"  # M2: 回归闸拦下, 已回滚
 
 
 @dataclass(frozen=True)
