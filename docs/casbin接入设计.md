@@ -20,12 +20,20 @@
 | `skills/*/manifest.toml` | 无权限字段（`SkillManifest.tags` 也没填） |
 | `stub/audit_logfile.py` · `AuditLogger.log(actor, action, target, result)` | 审计接口现成，天然适合记 enforce 决策 |
 
-## 二、接入点（两层 enforce）
+## 二、接入点（三层 enforce）
 
-1. **网关层 RBAC**：`LazyAuthMiddleware` 拿到 `request.state.user` 后加 `enforce(user, method+path)`，deny 返回 403。Casbin `(sub, obj, act)` 模型，如 viewer 不能触发任务执行。
-2. **技能层 enforce**（核心）：`SkillPool.checkout()` 前挂 `enforce(tenant, skill_name, "invoke")`；`TenantContext.can_use_skill()` 实现转调 Casbin——把 allowlist 语义激活为 policy（`p, tenant, skill, allow`）。
-3. **策略即代码（加分项）**：`manifest.toml` 加 `required_role` 字段，启动时编译进 Casbin policy。
-4. **审计闭环**：deny 决策写 `AuditLogger`（action="authorize", result="denied"）。
+**核心叙事：权限也是借来的，不是绑定的。** 临时 Agent 只能调用它借到的 SkillBundle 里的技能——bundle 之外的能力在结构上不存在。policy 挂在 `SkillPool.checkout()` 这个唯一咽喉点：策略决定"这次装配允许借走什么"，借还机制保证"借不到的就是调不了的"；`agent.destroy()` 时权限随装配一起销毁，无常驻特权（最小权限 + 临时凭证的 agent 架构对应物）。
+
+| 层 | 主体 → 客体 | 挂点 | 回答的问题 |
+|---|---|---|---|
+| 用户层 | user role → API 操作 | `LazyAuthMiddleware`（deny 返回 403），`(sub, obj, act)` RBAC，如 viewer 不能触发任务执行 | 这个人能不能下达这类任务 |
+| 租户层 | tenant → skill | `TenantContext.can_use_skill()` 实现转调 Casbin（激活全库无人调用的断头路），policy 形如 `p, tenant, skill, allow` | 这个租户订阅了哪些能力 |
+| **agent 层（核心）** | **agent 身份/装配 → skill** | **`SkillPool.checkout()` 咽喉点**，subject 可用 Casbin domain/ABAC 建模，如 `p, tenant_a, crawler_agent, crawler_pack.*, invoke` | **这次装配出来的 agent 允许做什么** |
+
+**与榫卯 M2 的咬合（对策书关键论据）**：M2 的修复动作会改装配（`swap_skill`/`re_assemble`）。每次重装配后的 checkout 都要重新过 policy——自动修复**不可能修出一个越权装配**。设计稿 §8"自适应 ≠ 自进化，只在预先验证过的技能池内做选择"这句承诺，由 Casbin 从口号变成机器判定。
+
+**策略即代码（加分项）**：`manifest.toml` 加 `required_role` 字段，启动时编译进 Casbin policy。
+**审计闭环**：deny 决策写 `AuditLogger`（action="authorize", result="denied"）。
 
 ## 三、实施约束
 
