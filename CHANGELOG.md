@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
   - `ledger.py` — AssertionLedger: 四种溯源边 (derive/depends_on/invalidates/trigger) 依赖图; falsify 只记账不打断执行流; falsified 为终态
 - **单测** `tests/unit/test_contract_{assertion,compiler,ledger}.py` 共 30 条
 
+### Added (2026-09-14, 榫卯 T1.2–T1.4)
+- **`layers/contract/causal.py` — 反向可达搜索 + 污染锥 + 只重跑集合** (M2 前半): 确定性图搜索定位最早被证伪断言, 非报错位置
+- **`layers/repair/strategy_table.py` — TypedDispatch** (M2 后半, 核心创新): 12 格 (kind×证伪类型) 完备 dispatch 表, 替代关键词猜测; 旧关键词路径保留兼容
+- **`layers/repair/regression_gate.py` — 回归闸**: 修复后复验全部 VERIFIED 断言, "修 A 坏 B"被拦下并记账回滚
+- **`layers/repair/typed_fixer.py` — FixPlan 桥**: dispatch 结果复用既有 FixPlan/ReAssembler 结构
+- **`layers/contract/escalation.py` — 验证阶梯** (M3): 连续 N≥3 次稳定通过自动 L1→L2, 证伪立即降回 L1, 升降全程事件可审计
+- **单测新增 3 文件 47 条** (test_contract_causal / test_repair_dispatch / test_contract_escalation)
+
 ### Changed
 - **接口变更（字段枚举，只增不改）**: `core.events.EventType` 追加 6 成员 — `assertion.verified/falsified/escalated/degraded`, `repair.applied/rolled_back` (榫卯 M1/M2/M3 用, 见 docs/任务单_T11_断言契约层.md)
 

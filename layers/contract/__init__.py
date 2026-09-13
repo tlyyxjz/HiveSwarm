@@ -18,6 +18,7 @@ from layers.contract.compiler import (
     CompileReport,
     Rejection,
 )
+from layers.contract.escalation import ObservationOutcome, VerificationLadder
 from layers.contract.ledger import (
     AssertionLedger,
     EdgeType,
@@ -39,4 +40,6 @@ __all__ = [
     "AssertionLedger",
     "EdgeType",
     "FalsificationRecord",
+    "ObservationOutcome",
+    "VerificationLadder",
 ]
