@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 - **`layers/contract/escalation.py` — 验证阶梯** (M3): 连续 N≥3 次稳定通过自动 L1→L2, 证伪立即降回 L1, 升降全程事件可审计
 - **单测新增 3 文件 47 条** (test_contract_causal / test_repair_dispatch / test_contract_escalation)
 
+### Changed (2026-09-14 晚, 战役3 收口)
+- **T3.2 README 重写** (中英双语): 问题导向开头 / mermaid 架构图 / 实测数字区 / 快速开始命令全部实测复跑; Gumroad 定价区暂移除待拍板
+- **T3.3 覆盖率补测**: 新增行为测试 37 条, 总覆盖 83%→87% (core+layers 91%)
+- **ruff**: 347→82 错 (265 项自动修复)
+- **.gitignore**: 补 runs/output/log; 实验轨迹 1222 文件移出版本控制
+- 测试基线: 461 → **513 passed, 1 skipped**
+
 ### Changed
 - **接口变更（字段枚举，只增不改）**: `core.events.EventType` 追加 6 成员 — `assertion.verified/falsified/escalated/degraded`, `repair.applied/rolled_back` (榫卯 M1/M2/M3 用, 见 docs/任务单_T11_断言契约层.md)
 
