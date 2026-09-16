@@ -5,9 +5,7 @@
 """
 from __future__ import annotations
 
-import pytest
-
-from layers.contract.assertion import Assertion, AssertionKind
+from layers.contract.assertion import Assertion
 from layers.contract.ledger import AssertionLedger, AssertionStatus
 from layers.repair.fixer import FixPlan
 from layers.repair.regression_gate import RegressionGate
@@ -16,7 +14,7 @@ from layers.repair.strategy_table import (
     PREDICATE_CLASS,
     TypedDispatch,
 )
-from layers.repair.typed_fixer import plan_for_symptom, to_fix_plan
+from layers.repair.typed_fixer import plan_for_symptom
 
 
 def _assertion(aid: str, kind: str, validator_name: str, producer: str = "") -> Assertion:
@@ -57,7 +55,7 @@ class TestDispatchTable:
             ("post", "existence"): "re_assemble",
             ("post", "value"): "re_observe",
         }
-        assert DISPATCH_TABLE == expected
+        assert expected == DISPATCH_TABLE
 
     def test_shape_error_swaps_adapter(self):
         a = _assertion("p1", "pre", "has_keys")

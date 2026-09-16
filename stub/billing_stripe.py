@@ -11,12 +11,12 @@ import json
 import logging
 import threading
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from core.billing import BillingMeter, UsageRecord
 
 if TYPE_CHECKING:
-    import stripe
+    pass
 
 _log = logging.getLogger(__name__)
 

@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 import pytest
-from pydantic import ValidationError
 
 from layers.contract.assertion import Assertion, AssertionKind, AssertionStatus
-from layers.contract.ledger import EdgeType, AssertionLedger
+from layers.contract.ledger import AssertionLedger, EdgeType
 
 
 def _a(aid: str, subject: str = "x") -> Assertion:

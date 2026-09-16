@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 import asyncio
-import os
 
 import pytest
 
-from core.brain import Plan, SubTask
+from core.brain import Plan
 from layers.brain.planner import (
     LLMBrain,
     MockBrain,
@@ -14,7 +13,6 @@ from layers.brain.planner import (
     _dict_to_plan,
     _extract_json,
 )
-
 
 # ── _extract_json ────────────────────────────────────────────────────
 

@@ -1,18 +1,16 @@
 """FastAPI app factory with lifespan management."""
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
-from pathlib import Path
-from fastapi import FastAPI
 import logging
+from contextlib import asynccontextmanager
 
-from stub.services import build_default_services
-from stub.bus_local import LocalEventBus
-from layers.work.pool import SkillPool
+from fastapi import FastAPI
+
 from layers.brain.planner import LLMBrain, MockBrain
-from layers.work.factory import AgentFactory
 from layers.memory.store import MemoryStore
-from layers.memory.store import MemoryTier
+from layers.work.factory import AgentFactory
+from layers.work.pool import SkillPool
+from stub.services import build_default_services
 
 # Silence some noisy loggers
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -94,10 +92,10 @@ def create_app(config_path: str | None = None) -> FastAPI:
     bootstrap_auth(app)
 
     # Include routers (import after app creation to avoid circular imports)
-    from gateway.routes_tasks import router as tasks_router
-    from gateway.routes_skills import router as skills_router
     from gateway.routes_events import router as events_router
     from gateway.routes_health import router as health_router
+    from gateway.routes_skills import router as skills_router
+    from gateway.routes_tasks import router as tasks_router
 
     app.include_router(tasks_router, prefix="/tasks", tags=["tasks"])
     app.include_router(skills_router, prefix="/skills", tags=["skills"])

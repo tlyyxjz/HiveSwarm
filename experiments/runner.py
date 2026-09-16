@@ -21,7 +21,7 @@ from pathlib import Path
 
 from experiments.environment import SandboxEnv, ToolError
 from experiments.inject import INJECTIONS, make_hook
-from experiments.taskset import TOOLS, get_task
+from experiments.taskset import get_task
 from layers.contract.assertion import Assertion
 
 # 工具返回形状契约 (C 组事前检查依据)
@@ -199,7 +199,7 @@ def run_group_B(task: dict, env: SandboxEnv) -> RunTrace:
 
 def run_group_C(task: dict, env: SandboxEnv) -> RunTrace:
     """榫卯三机制: 事前形状契约 + 事后判据断言 + 反向定位 + 类型驱动恢复 + 回归闸."""
-    from layers.contract.assertion import Assertion, AssertionKind, AssertionStatus
+    from layers.contract.assertion import AssertionStatus
     from layers.contract.compiler import AssertionCompiler, CandidateAssertion, CandidateConstraint
     from layers.contract.ledger import AssertionLedger
     from layers.repair.regression_gate import RegressionGate

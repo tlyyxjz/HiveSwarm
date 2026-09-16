@@ -1,15 +1,12 @@
 """Repair 层单元测试."""
 from __future__ import annotations
 
-import pytest
-
 from core.brain import SubTask
-from layers.inspect.checker import CheckReport, Checker
-from layers.inspect.validator import NotEmpty, RegexMatch
+from layers.inspect.checker import Checker, CheckReport
+from layers.inspect.validator import NotEmpty
 from layers.repair.fixer import Fixer, FixPlan
 from layers.repair.re_assembler import ReAssembler
 from layers.repair.strategy_table import RepairAction, StrategyTable
-
 
 # ── StrategyTable ───────────────────────────────────────────────────
 

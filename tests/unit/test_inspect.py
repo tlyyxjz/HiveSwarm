@@ -3,9 +3,7 @@ from __future__ import annotations
 
 import asyncio
 
-import pytest
-
-from layers.inspect.checker import Checker, CheckReport, ppt_result_checker, scan_result_checker
+from layers.inspect.checker import Checker, ppt_result_checker, scan_result_checker
 from layers.inspect.llm_judge import _rule_based_score, judge
 from layers.inspect.validator import (
     HasKeys,
@@ -14,9 +12,7 @@ from layers.inspect.validator import (
     MinLength,
     NotEmpty,
     RegexMatch,
-    ValidationResult,
 )
-
 
 # ── Validator ────────────────────────────────────────────────────────
 

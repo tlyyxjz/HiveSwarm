@@ -21,6 +21,7 @@ import subprocess
 from typing import Any
 
 from core.skill import Skill, SkillManifest
+
 from .skills import (
     ScanL1Skill,
     ScanL2Skill,

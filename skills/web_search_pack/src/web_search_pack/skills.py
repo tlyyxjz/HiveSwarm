@@ -14,7 +14,7 @@ from urllib.parse import unquote
 
 import httpx
 
-from core.skill import Skill, SkillManifest, SkillHealth
+from core.skill import Skill, SkillHealth, SkillManifest
 
 _log = logging.getLogger(__name__)
 

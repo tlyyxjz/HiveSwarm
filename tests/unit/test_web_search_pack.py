@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -11,7 +11,6 @@ ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT / "skills" / "web_search_pack" / "src"))
 
 from web_search_pack.skills import WebSearchSkill
-
 
 # ── 基本参数处理 ─────────────────────────────────────────────
 

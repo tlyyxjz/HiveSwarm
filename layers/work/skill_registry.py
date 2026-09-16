@@ -4,9 +4,8 @@ Extracted from src/main.py to share between CLI and gateway implementations.
 """
 from __future__ import annotations
 
-import sys
 import logging
-from pathlib import Path
+import sys
 from typing import TYPE_CHECKING
 
 from core.skill import Skill, SkillManifest
@@ -92,7 +91,7 @@ def _try_register_real_skill(pool: SkillPool, name: str) -> bool:
         return False
 
 
-def register_needed_skills(pool: SkillPool, plan: "Plan") -> None:
+def register_needed_skills(pool: SkillPool, plan: Plan) -> None:
     """根据 plan 里的 required_skills 注册实现. 优先真技能包, 失败回 mock.
 
     Args:

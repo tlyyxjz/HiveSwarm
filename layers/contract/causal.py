@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from layers.contract.assertion import AssertionStatus
-from layers.contract.ledger import EdgeType, AssertionLedger
+from layers.contract.ledger import AssertionLedger
 
 
 @dataclass(frozen=True)

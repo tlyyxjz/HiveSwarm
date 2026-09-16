@@ -20,7 +20,7 @@ from core.skill import Skill, SkillHealth
 from core.skill_bundle import SkillBundle
 
 if TYPE_CHECKING:
-    from core.events import EventBus, EventType
+    from core.events import EventBus
 
 _log = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class SkillPool:
 
     def __init__(
         self,
-        bus: "EventBus | None" = None,
+        bus: EventBus | None = None,
         *,
         max_concurrent_per_skill: int = 100,
         health_error_threshold: float = 0.5,

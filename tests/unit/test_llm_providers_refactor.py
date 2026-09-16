@@ -8,10 +8,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-import stub.llm_providers as llm_providers_mod
 import stub.llm_litellm as llm_litellm_mod
-from stub.config_loader import ConfigError, ProviderCfg
-
+import stub.llm_providers as llm_providers_mod
+from stub.config_loader import ProviderCfg
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -90,8 +89,8 @@ class TestConfigurationError:
 
     def test_unknown_active_provider_raises(self):
         """active_provider 不在注册表 → raise ConfigurationError, 不静默 fallthrough."""
-        from stub.llm_litellm import ConfigurationError, dispatch
         from stub.config_loader import BrainCfg, Config, MemoryCfg
+        from stub.llm_litellm import ConfigurationError, dispatch
         # 构造最小 Config, providers 不含 "ghost"
         cfg = Config(
             brain=BrainCfg(
@@ -177,8 +176,8 @@ class TestLitellmImportOnce:
 class TestDispatchNoSilentFallback:
     def test_dispatch_failure_does_not_silently_use_env_fallback(self):
         """配置驱动失败必须 raise, 不能 fallthrough 到 env_fallback 返回 stub 字符串."""
-        from stub.llm_litellm import ConfigurationError, dispatch
         from stub.config_loader import BrainCfg, Config, MemoryCfg
+        from stub.llm_litellm import dispatch
 
         cfg = Config(
             brain=BrainCfg(
@@ -211,9 +210,8 @@ class TestDispatchNoSilentFallback:
         # mock 适配器抛 RuntimeError, dispatch 必须 raise 而不是返回 stub
         with patch.object(llm_litellm_mod, "_PROTOCOL_DISPATCH", {
             "ollama": MagicMock(side_effect=RuntimeError("boom"))
-        }):
-            with pytest.raises(RuntimeError, match="boom"):
-                dispatch([{"role": "user", "content": "x"}], cfg=cfg)
+        }), pytest.raises(RuntimeError, match="boom"):
+            dispatch([{"role": "user", "content": "x"}], cfg=cfg)
 
 
 # ── 8. 三文件总行数 < 600 ──────────────────────────────────────────

@@ -5,8 +5,12 @@ import pytest
 from pydantic import ValidationError
 
 from gateway.models import (
-    TaskRequest, TaskResponse, TaskAcceptedResponse,
-    SubTaskResultResponse, SkillsResponse, SkillInfo, HealthResponse,
+    HealthResponse,
+    SkillInfo,
+    SkillsResponse,
+    SubTaskResultResponse,
+    TaskRequest,
+    TaskResponse,
     task_response_from_result,
 )
 

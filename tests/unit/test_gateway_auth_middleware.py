@@ -7,7 +7,6 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 from fastapi.responses import JSONResponse
 
 ROOT = Path(__file__).parent.parent.parent

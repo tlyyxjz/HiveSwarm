@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from stub.governance_permanent import PermanentRetention, _PII_SENTINEL
+from stub.governance_permanent import _PII_SENTINEL, PermanentRetention
 
 
 @pytest.fixture

@@ -4,15 +4,11 @@ Mock JWKS endpoint, 验 token 颁发 / 刷新 / 过期.
 """
 from __future__ import annotations
 
-import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import jwt
 import pytest
 
-from core.auth import UserContext
 from stub.auth_oauth import InvalidTokenError, OAuthAuth
-
 
 # 真实测试用 RSA key pair
 _TEST_PRIVATE_KEY = """-----BEGIN PRIVATE KEY-----

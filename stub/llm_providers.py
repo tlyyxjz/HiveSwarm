@@ -13,8 +13,6 @@ import litellm 仅在顶部一次 (按"DRY"关 1 要求)。
 """
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
 import os
 from contextlib import contextmanager
@@ -49,7 +47,7 @@ def _no_proxy_for_localhost():
 # ── 三协议适配器 (签名一致) ─────────────────────────────────────────
 
 
-async def _call_ollama(provider: "ProviderCfg", messages: list[dict], **kwargs: Any) -> str:
+async def _call_ollama(provider: ProviderCfg, messages: list[dict], **kwargs: Any) -> str:
     """Ollama 本地模型 — /api/chat (非 Anthropic 兼容)。
 
     用 httpx.AsyncClient 异步发请求, 禁 urllib.request 同步阻塞。
@@ -82,7 +80,7 @@ async def _call_ollama(provider: "ProviderCfg", messages: list[dict], **kwargs: 
             return resp.json().get("message", {}).get("content") or ""
 
 
-def _call_anthropic(provider: "ProviderCfg", messages: list[dict], **kwargs: Any) -> str:
+def _call_anthropic(provider: ProviderCfg, messages: list[dict], **kwargs: Any) -> str:
     """Anthropic Messages API 兼容端点 (DeepSeek / MiniMax / Claude)。"""
     key = provider.resolve_key()
     kwargs.pop("model", None)
@@ -96,7 +94,7 @@ def _call_anthropic(provider: "ProviderCfg", messages: list[dict], **kwargs: Any
     return resp.choices[0].message.content or ""
 
 
-def _call_openai(provider: "ProviderCfg", messages: list[dict], **kwargs: Any) -> str:
+def _call_openai(provider: ProviderCfg, messages: list[dict], **kwargs: Any) -> str:
     """OpenAI Chat Completions API。"""
     key = provider.resolve_key()
     kwargs.pop("model", None)
@@ -123,7 +121,7 @@ _PROTOCOL_DISPATCH = {
 # ── Ollama 健康探测 (async) ─────────────────────────────────────────
 
 
-async def resolve_ollama(cfg: "Config | None" = None) -> tuple[str, str] | None:
+async def resolve_ollama(cfg: Config | None = None) -> tuple[str, str] | None:
     """检测 Ollama 是否可用 → (base_url, model)。timeout=5s 防冷启动漏检。"""
     # 1. 配置驱动
     if cfg and cfg.brain.providers:

@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 from core.audit import AuditLogger
 
 if TYPE_CHECKING:
-    from confluent_kafka import Producer
+    pass
 
 _log = logging.getLogger(__name__)
 

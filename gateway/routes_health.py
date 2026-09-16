@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Request
+
 from gateway.models import HealthResponse
 
 router = APIRouter()

@@ -13,9 +13,9 @@ import argparse
 import sys
 from pathlib import Path
 
+from experiments.inject import INJECTIONS
 from experiments.runner import run_batch
 from experiments.taskset import TASKS, gen_tasks, validate
-from experiments.inject import INJECTIONS
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -33,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
 
     out_dir = Path(args.outdir)
     gen_tasks(Path("experiments/tasks"))
-    print(f"[tasks] 30 个 JSON 已落盘 experiments/tasks/")
+    print("[tasks] 30 个 JSON 已落盘 experiments/tasks/")
 
     task_ids = [t["id"] for t in TASKS]
     if args.subset:

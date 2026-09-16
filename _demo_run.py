@@ -1,5 +1,6 @@
 """三玖主线程亲跑验证：核心功能 3 件事好不好"""
-import subprocess, sys
+import subprocess
+import sys
 from pathlib import Path
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -22,7 +23,7 @@ FAIL = "[FAIL]"
 class FakeSkill:
     """符合 Skill 契约的最小实现（demo 用，不污染源码）"""
     def __init__(self, name, fail=False):
-        from core.skill import Skill, SkillManifest, SkillHealth
+        from core.skill import SkillManifest
         self.manifest = SkillManifest(name=name, api_version="1.0")
         self._fail = fail
 
@@ -53,10 +54,9 @@ def demo_1_vision_main():
 
 def demo_2_borrow_return():
     banner("DEMO 2: 技能借还 + Agent 销毁（核心创新点）")
-    from core.skill_bundle import Borrowed
     from core.brain import SubTask
-    from layers.work.pool import SkillPool
     from layers.work.factory import AgentFactory
+    from layers.work.pool import SkillPool
 
     pool = SkillPool()
     pool.register(FakeSkill("alpha"))
@@ -97,11 +97,11 @@ def demo_2_borrow_return():
 
 def demo_3_failure_to_repair():
     banner("DEMO 3: 失败 → Repair 链路触发")
-    from stub.bus_local import LocalEventBus
     from core.brain import SubTask
-    from layers.work.pool import SkillPool
-    from layers.work.factory import AgentFactory
     from layers.repair.fixer import Fixer
+    from layers.work.factory import AgentFactory
+    from layers.work.pool import SkillPool
+    from stub.bus_local import LocalEventBus
 
     bus = LocalEventBus()
     pool = SkillPool(bus=bus)

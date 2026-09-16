@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Request
-from gateway.models import SkillsResponse, SkillInfo
+
+from gateway.models import SkillInfo, SkillsResponse
 
 router = APIRouter()
 

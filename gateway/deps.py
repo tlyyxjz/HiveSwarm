@@ -13,12 +13,12 @@ from __future__ import annotations
 
 from fastapi import Request
 
-from stub.services import Services
-from layers.work.pool import SkillPool
 from layers.brain.planner import MockBrain
-from layers.work.factory import AgentFactory
 from layers.memory.store import MemoryStore
+from layers.work.factory import AgentFactory
+from layers.work.pool import SkillPool
 from stub.bus_local import LocalEventBus
+from stub.services import Services
 
 
 def get_services(request: Request) -> Services:

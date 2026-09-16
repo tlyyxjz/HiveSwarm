@@ -14,7 +14,6 @@ from layers.work.pool import SkillPool
 from layers.work.transaction import TaskTransaction
 from stub.bus_local import LocalEventBus
 
-
 # ── 假 skill 们 ──────────────────────────────────────────────────────
 
 class DataCollectSkill(Skill):

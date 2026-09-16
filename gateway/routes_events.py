@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
+
 from core.events import EventType
 
 router = APIRouter()

@@ -6,10 +6,11 @@ enum,Bus 实现只管发收,不分发逻辑(那在 Monitor).
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class EventType(str, Enum):

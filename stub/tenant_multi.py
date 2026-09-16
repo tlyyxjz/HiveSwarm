@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from typing import Mapping
+from collections.abc import Mapping
 
 from core.tenant import Tenant, TenantContext
 

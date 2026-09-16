@@ -1,13 +1,11 @@
 """实验机器单测 — 任务集/注入器/runner 机制差异签名/指标/报告."""
 from __future__ import annotations
 
-import pytest
-
 from experiments.inject import CATEGORIES, INJECTIONS, by_category, make_hook
 from experiments.metrics import compute
 from experiments.report import render
-from experiments.runner import run_batch, run_one
-from experiments.taskset import TASKS, validate
+from experiments.runner import run_one
+from experiments.taskset import validate
 
 
 class TestTaskset:

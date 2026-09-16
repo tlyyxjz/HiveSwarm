@@ -38,7 +38,7 @@ class VerificationLadder:
         ledger: AssertionLedger,
         *,
         promote_after: int = 3,
-        emit: "callable[[Event], None] | None" = None,
+        emit: callable[[Event], None] | None = None,
     ) -> None:
         if promote_after < 1:
             raise ValueError("promote_after must be >= 1")

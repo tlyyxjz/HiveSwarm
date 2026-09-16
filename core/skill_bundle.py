@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from contextlib import AbstractContextManager
 from types import TracebackType
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 from core.skill import Skill
 

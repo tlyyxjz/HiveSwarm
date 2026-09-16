@@ -8,8 +8,8 @@ from __future__ import annotations
 import pytest
 from starlette.testclient import TestClient
 
-from gateway.app import create_app
 from gateway import deps
+from gateway.app import create_app
 
 
 @pytest.fixture

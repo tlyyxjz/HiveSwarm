@@ -10,13 +10,14 @@ from __future__ import annotations
 import logging
 import threading
 from collections import deque
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 from core.telemetry import Tracer
 
 if TYPE_CHECKING:
-    from opentelemetry.trace import Tracer as OTelSDKTracer
+    pass
 
 _log = logging.getLogger(__name__)
 

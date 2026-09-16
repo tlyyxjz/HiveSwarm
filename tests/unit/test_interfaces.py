@@ -4,20 +4,14 @@ Day 1 的核心守门: 以后任何人改 stub, 如果签名对不上 ABC 就炸
 """
 from __future__ import annotations
 
-import inspect
-from typing import Any
-
 import pytest
 
-from core.agent import Agent
 from core.audit import AuditLogger
 from core.auth import AuthProvider, UserContext
 from core.billing import BillingMeter, UsageRecord
-from core.brain import Brain, Plan, SubTask
 from core.events import Event, EventBus, EventType
 from core.governance import DataRetention
 from core.recovery import RecoveryStrategy
-from core.skill import Skill, SkillManifest
 from core.telemetry import Tracer
 from core.tenant import Tenant, TenantContext
 from stub.audit_logfile import LogFileAudit
@@ -29,7 +23,6 @@ from stub.recovery_retry import RetryRecovery
 from stub.store_sqlite import SQLiteStore
 from stub.telemetry_noop import NoopTelemetry
 from stub.tenant_default import DefaultTenant
-
 
 # ── helpers ──────────────────────────────────────────────────────────────
 
@@ -63,7 +56,6 @@ class TestAuthProvider:
         assert ctx.role == "admin"
 
     def test_check_token_unknown_raises(self):
-        import pytest
         with pytest.raises(Exception):
             SimpleAuth().check_token("bogus-token")
 

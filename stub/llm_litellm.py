@@ -18,6 +18,8 @@ from typing import TYPE_CHECKING, Any
 
 from stub.llm_providers import (
     _PROTOCOL_DISPATCH,
+)
+from stub.llm_providers import (
     resolve_ollama as _resolve_ollama_async,
 )
 
@@ -32,7 +34,7 @@ class ConfigurationError(RuntimeError):
     """LLM 配置错误 (active_provider 找不到 / 适配器缺失)。"""
 
 
-def _find_provider(name: str, providers: tuple) -> "ProviderCfg | None":
+def _find_provider(name: str, providers: tuple) -> ProviderCfg | None:
     """从注册表按 name 查 provider。找不到返回 None, 由 caller 决定如何处理。"""
     for p in providers:
         if p.name == name:
@@ -45,7 +47,7 @@ def _find_provider(name: str, providers: tuple) -> "ProviderCfg | None":
 
 def dispatch(
     messages: list[dict[str, str]],
-    cfg: "Config | None" = None,
+    cfg: Config | None = None,
     provider: str = "",
     model: str = "",
     **kwargs: Any,
@@ -98,7 +100,7 @@ def dispatch(
 
 async def dispatch_async(
     messages: list[dict[str, str]],
-    cfg: "Config | None" = None,
+    cfg: Config | None = None,
     provider: str = "",
     model: str = "",
     **kwargs: Any,
@@ -147,7 +149,7 @@ def chat(
         return f"{_STUB} (error: {exc})"
 
 
-def resolve_ollama(cfg: "Config | None" = None) -> tuple[str, str] | None:
+def resolve_ollama(cfg: Config | None = None) -> tuple[str, str] | None:
     """同步壳 — 包 async resolve_ollama。处理已有 event loop 的情况。"""
     try:
         try:

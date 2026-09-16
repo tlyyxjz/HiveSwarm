@@ -99,7 +99,7 @@ class UrlExtractSkill(Skill):
             for a in soup.find_all("a", href=True):
                 links.append({"text": a.get_text(strip=True)[:200], "href": a["href"][:500]})
             return {"ok": True, "count": len(links), "links": links[:200]}
-        except Exception as exc:
+        except Exception:
             # bs4 fallback
             import re
             pattern = r'<a[^>]+href=["\']([^"\']+)["\']'

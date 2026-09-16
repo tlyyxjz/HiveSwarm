@@ -11,8 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.auth import AuthProvider
 from core.audit import AuditLogger
+from core.auth import AuthProvider
 from core.billing import BillingMeter
 from core.events import EventBus
 from core.governance import DataRetention

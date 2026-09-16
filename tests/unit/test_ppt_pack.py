@@ -6,8 +6,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "skills" / "ppt_pack" / "src"))
@@ -19,8 +17,8 @@ from ppt_pack import (
     OutlineSkill,
     register_all,
 )
-from layers.work.pool import SkillPool
 
+from layers.work.pool import SkillPool
 
 # ── 单 skill 行为 ────────────────────────────────────────────
 

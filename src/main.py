@@ -21,16 +21,15 @@ from pathlib import Path
 from typing import Any
 
 from layers.brain.planner import MockBrain
-from layers.inspect.checker import ppt_result_checker
+from layers.memory.store import MemoryStore, MemoryTier
+from layers.report import ReportGenerator
 from layers.work.factory import AgentFactory
 from layers.work.pool import SkillPool
+from layers.work.skill_registry import register_needed_skills
 from layers.work.transaction import TaskTransaction
 from stub.bus_local import LocalEventBus
 from stub.services import build_default_services
 from stub.store_sqlite import SQLiteStore
-from layers.memory.store import MemoryStore, MemoryTier
-from layers.work.skill_registry import register_needed_skills
-from layers.report import ReportGenerator
 
 
 def run_demo(

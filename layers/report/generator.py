@@ -9,8 +9,7 @@
 from __future__ import annotations
 
 import logging
-import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -193,7 +192,7 @@ class ReportGenerator:
         lines.append("")
         lines.append(f"> **任务 ID**: `{task_id}`  ")
         lines.append(f"> **生成时间**: {now}  ")
-        lines.append(f"> **HiveSwarm 版本**: v0.2.0")
+        lines.append("> **HiveSwarm 版本**: v0.2.0")
         lines.append("")
 
         # 📌 基本信息
@@ -284,11 +283,11 @@ class ReportGenerator:
 
     def _render_pdf(self, md_path: Path, task_id: str, title: str) -> Path:
         """用 reportlab 把 markdown 文本转 PDF."""
-        from reportlab.lib.pagesizes import A4
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-        from reportlab.lib.units import cm
         from reportlab.lib.enums import TA_LEFT
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+        from reportlab.lib.units import cm
+        from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
         pdf_path = md_path.with_suffix(".pdf")
         doc = SimpleDocTemplate(
