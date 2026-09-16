@@ -48,3 +48,6 @@ hiveswarm-pro.zip
 test-runtime/
 报告/
 *.zip
+*.log
+output/
+experiments/runs/
