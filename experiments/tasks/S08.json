@@ -1,0 +1,49 @@
+{
+  "id": "S08",
+  "category": "serial",
+  "description": "折扣计算: 80 打五折",
+  "setup": {
+    "files": {
+      "cfg.txt": "price=80\ndiscount=5"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "cfg.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "*",
+        "a": "$s2",
+        "b": 0.5
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "pay.txt",
+        "content": "PAY:{s3:g}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:pay.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^PAY:40$"
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "B06",
+  "category": "branch",
+  "description": "温度>30 写 HOT",
+  "setup": {
+    "files": {
+      "temp.txt": "temp:33"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "temp.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "weather.txt",
+        "content": "HOT:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:weather.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^HOT:33$"
+      }
+    }
+  ]
+}

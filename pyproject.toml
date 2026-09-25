@@ -27,14 +27,43 @@ dev = [
     "mypy>=1.8",
     "gradio>=4.15",     # dashboard
     "sqlite-utils>=3.0",  # memory
+    # 下面三个是运行"完整单元测试"所必需的可选依赖 —— 缺了不是 skip 而是 fail,
+    # 干净环境里会得到 632 passed / 4 failed(2026-09-25 实测), 与 README 的 636 对不上。
+    "python-pptx>=0.6",   # skills/ppt_pack 的导出用例
+    "reportlab>=4.0",     # layers/report 的 PDF 用例
+    "pyjwt>=2.0",         # stub/auth_oauth 的 token 解析用例
 ]
 
 [project.entry-points."hiveswarm.skills"]
 # 技能包通过 entry_points 注册(Phase 1 留空,Phase 4 填)
 
 [build-system]
-requires = ["poetry-core>=1.0"]
-build-backend = "poetry.core.masonry.api"
+# 本仓库是"仓库根下并列多个顶层包"的布局(core/ layers/ stub/ sdk/ gateway/ ...),
+# 没有与发行名同名的 hiveswarm/ 目录 —— poetry-core 会在构建时抛
+# ModuleOrPackageNotFoundError: No file/folder found for package hiveswarm。
+# 元数据本来就是 PEP 621 标准写法, 所以后端改用 setuptools 并显式列出顶层包。
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = [
+    "core",
+    "layers",
+    "layers.brain",
+    "layers.contract",
+    "layers.inspect",
+    "layers.memory",
+    "layers.monitor",
+    "layers.repair",
+    "layers.report",
+    "layers.work",
+    "gateway",
+    "gateway.middleware",
+    "stub",
+    "sdk",
+    "sdk.hiveswarm_client",
+    "experiments",
+]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -55,6 +84,12 @@ filterwarnings = [
     "ignore::DeprecationWarning:pydantic.*",
     "ignore::pytest.PytestUnraisableExceptionWarning",
     "ignore::ResourceWarning",
+    # starlette 1.x 起, 用 httpx(而不是新的 httpx2) 驱动 TestClient 会发这条弃用警告。
+    # 上面 "error" 会把它升级成**收集期错误** → 整个 tests/unit 一条都收集不到,
+    # 这是"干净环境下 pip install 之后跑不了测试"的真问题(2026-09-25 在全新 venv 里实测到)。
+    # 这是第三方弃用信号, 不是本仓库缺陷; 按警告类精确忽略, 不用通配。等 starlette 真移除 httpx
+    # 支持时, 改成 dev 依赖里装 httpx2。
+    "ignore::starlette.exceptions.StarletteDeprecationWarning",
 ]
 
 [tool.ruff]
@@ -64,6 +99,34 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]  # line-length 单独管
+
+[tool.ruff.lint.per-file-ignores]
+# 既有风格债豁免。规则: ①只豁免"已经存在的老文件" ②每条写明为什么 ③**生产代码
+# (core/ layers/ gateway/ src/ sdk/)一条都不豁免** —— 那部分 2026-09-25 已全部修到 ruff 干净。
+# 新增文件如果落在下面的路径里, 也自动享受豁免; 这是已知代价, 优先保证门禁不假红。
+"tests/**" = [
+    "E402",   # 测试必须先 sys.path.insert(0, ...) 再 import 被测代码
+    "E741",   # 测试里的局部变量 l / ll
+    "F401",   # import 只为触发注册或副作用
+    "F841",   # 夹具里预留但当前用例未用的变量
+    "I001",   # import 顺序在 sys.path 操作之后, 无法完全排序
+    "N802", "N806", "N814", "N817", "N818",  # 测试名带 A/B/C 分组、类作常量别名等
+    "B008", "B017", "B905",  # 断言/zip 的宽松写法
+    "C408",   # 故意用 dict() 构造
+    "SIM105", "SIM117",
+]
+"stub/dashboard_gradio.py" = ["F841", "SIM108", "B008"]  # gradio 组件是"创建即副作用"的对象, 变量留着便于后续引用
+"stub/services.py" = ["SIM105", "F841"]
+"stub/observability_otel.py" = ["SIM105"]
+"stub/bus_local.py" = ["SIM105"]
+"stub/audit_logfile.py" = ["SIM105"]
+"stub/llm_providers.py" = ["SIM102"]
+"experiments/runner.py" = ["N802", "F841"]  # run_group_A/B/C 是实验分组标签, 故意大写
+"experiments/environment.py" = ["N818"]     # ToolTimeout 是既有对外名字, 改名会破坏引用
+"skills/agentvet_pack/src/agentvet_pack/skills.py" = ["N806"]   # 第三方技能包目录里的既有写法
+"skills/agentvet_pack/src/agentvet_pack/__init__.py" = ["F401"] # 包导出
+"skills/crawler_pack/src/crawler_pack/__init__.py" = ["F401", "SIM108"]
+"_demo_run.py" = ["N814"]  # 临时调试脚本, 别名 _ST 是为省屏幕宽度
 
 [tool.mypy]
 python_version = "3.10"

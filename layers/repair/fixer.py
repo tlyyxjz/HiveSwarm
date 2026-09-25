@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from core.brain import SubTask
 from layers.inspect.checker import CheckReport

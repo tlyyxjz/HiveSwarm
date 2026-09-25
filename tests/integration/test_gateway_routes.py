@@ -6,7 +6,6 @@ from starlette.testclient import TestClient
 
 from gateway.app import create_app
 
-
 AUTH_HEADER = {"Authorization": "Bearer mvp-token-admin"}
 
 

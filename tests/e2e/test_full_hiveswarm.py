@@ -19,14 +19,11 @@ from __future__ import annotations
 
 import asyncio
 
-import pytest
-
 from core.brain import Plan
 from core.events import EventType
 from core.skill import Skill, SkillManifest
 from layers.brain.planner import MockBrain
 from layers.inspect.checker import ppt_result_checker
-from layers.inspect.llm_judge import judge
 from layers.memory.recall import recall_recent
 from layers.memory.store import MemoryStore, MemoryTier
 from layers.monitor.bus import MonitorBus
@@ -38,7 +35,6 @@ from layers.work.pool import SkillPool
 from layers.work.transaction import TaskTransaction
 from stub.bus_local import LocalEventBus
 from stub.store_sqlite import SQLiteStore
-
 
 # ── Mock skill 们(把 PPT 流程跑通) ───────────────────────────────
 

@@ -4,7 +4,7 @@ Mock tracer provider, 验 span 创建 / 上下文管理 / 异常标记.
 """
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -37,9 +37,8 @@ def test_span_records_exception_when_error_in_fallback_mode():
     tracer = OTelTracer(service_name="test-svc")
     tracer._ot_tracer = None
 
-    with pytest.raises(RuntimeError, match="boom"):
-        with tracer.span("op.fail"):
-            raise RuntimeError("boom")
+    with pytest.raises(RuntimeError, match="boom"), tracer.span("op.fail"):
+        raise RuntimeError("boom")
 
     spans = tracer.recent_spans()
     assert len(spans) == 1

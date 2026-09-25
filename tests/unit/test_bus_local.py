@@ -2,13 +2,10 @@
 from __future__ import annotations
 
 import threading
-from datetime import datetime, timedelta
-
-import pytest
+from datetime import datetime
 
 from core.events import Event, EventType
 from stub.bus_local import LocalEventBus
-
 
 # ── 基本 pub/sub ─────────────────────────────────────────────
 

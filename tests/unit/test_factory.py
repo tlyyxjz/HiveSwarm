@@ -6,7 +6,7 @@ import asyncio
 import pytest
 
 from core.brain import SubTask
-from core.skill import Skill, SkillHealth, SkillManifest
+from core.skill import Skill, SkillManifest
 from layers.work.factory import AgentAlreadyDestroyedError, AgentFactory, TempAgent
 from layers.work.pool import SkillPool
 

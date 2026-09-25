@@ -1,5 +1,6 @@
 """HiveSwarm gateway — run with `python -m gateway`."""
 import uvicorn
+
 from gateway.app import create_app
 
 if __name__ == "__main__":

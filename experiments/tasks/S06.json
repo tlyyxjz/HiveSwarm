@@ -1,0 +1,40 @@
+{
+  "id": "S06",
+  "category": "serial",
+  "description": "三段追加构建清单",
+  "setup": {
+    "files": {}
+  },
+  "solution_steps": [
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "list.txt",
+        "content": "1.a\n"
+      }
+    },
+    {
+      "tool": "append_line",
+      "args": {
+        "path": "list.txt",
+        "line": "2.b"
+      }
+    },
+    {
+      "tool": "append_line",
+      "args": {
+        "path": "list.txt",
+        "line": "3.c"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:list.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "1\\.a\\n2\\.b\\n3\\.c"
+      }
+    }
+  ]
+}

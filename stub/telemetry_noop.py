@@ -1,8 +1,8 @@
 """NoopTelemetry — 不发任何东西. 换 OpenTelemetry 时改 1 行配置."""
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
 
 from core.telemetry import Tracer
 

@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 from core.auth import AuthProvider, UserContext
 
 if TYPE_CHECKING:  # 仅给类型检查,运行时不强依赖
-    import jwt  # PyJWT
+    pass  # PyJWT
 
 _log = logging.getLogger(__name__)
 

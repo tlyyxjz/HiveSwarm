@@ -1,0 +1,49 @@
+{
+  "id": "S05",
+  "category": "serial",
+  "description": "抽数字乘 3",
+  "setup": {
+    "files": {
+      "n.txt": "base=9"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "n.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "*",
+        "a": "$s2",
+        "b": 3
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "x3.txt",
+        "content": "X3:{s3}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:x3.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^X3:27$"
+      }
+    }
+  ]
+}

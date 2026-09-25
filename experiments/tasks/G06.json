@@ -1,0 +1,43 @@
+{
+  "id": "G06",
+  "category": "guard",
+  "description": "零值边界: 空日志输出 0",
+  "setup": {
+    "files": {
+      "empty.log": ""
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "text_search",
+      "args": {
+        "path": "empty.log",
+        "pattern": "x"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s1",
+        "b": 0
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "lines.txt",
+        "content": "LINES:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:lines.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^LINES:0$"
+      }
+    }
+  ]
+}

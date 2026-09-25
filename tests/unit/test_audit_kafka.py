@@ -4,10 +4,7 @@ Mock confluent_kafka.Producer, 验 JSONL 序列化 / 异常降级 / flush.
 """
 from __future__ import annotations
 
-from datetime import datetime
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from stub.audit_kafka import KafkaAudit
 

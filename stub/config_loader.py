@@ -9,10 +9,14 @@
 from __future__ import annotations
 
 import sys
-import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10: tomllib 是 3.11 才进标准库的
+    import tomli as tomllib  # type: ignore[no-redef]
 
 
 class ConfigError(ValueError):
@@ -32,7 +36,8 @@ class ProviderCfg:
 
     def resolve_key(self) -> str:
         """${VAR} → os.environ[VAR]，否则原样返回。"""
-        import os, re
+        import os
+        import re
         m = re.match(r'^\$\{(\w+)\}$', self.api_key)
         if m:
             return os.environ.get(m.group(1), "")

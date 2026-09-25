@@ -1,7 +1,6 @@
 """crawler_pack unit tests — 通用 HTTP skill."""
 from __future__ import annotations
 
-import pytest
 import sys
 from pathlib import Path
 
@@ -10,9 +9,12 @@ SKILL_SRC = Path(__file__).parent.parent.parent / "skills" / "crawler_pack" / "s
 sys.path.insert(0, str(SKILL_SRC))
 
 from crawler_pack.skills import (  # noqa: E402
-    HttpFetchSkill, UrlExtractSkill, HttpPostSkill,
+    HttpFetchSkill,
+    HttpPostSkill,
+    UrlExtractSkill,
     register_all,
 )
+
 from layers.work.pool import SkillPool  # noqa: E402
 
 

@@ -1,0 +1,71 @@
+{
+  "id": "G09",
+  "category": "guard",
+  "description": "符号运算: (-3+8)*-2=-10",
+  "setup": {
+    "files": {
+      "sym.txt": "a:-3\nb:8\nc:-2"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "sym.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 2
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 3
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s2",
+        "b": "$s3"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "*",
+        "a": "$s5",
+        "b": "$s4"
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "symres.txt",
+        "content": "SYM:{s6}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:symres.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^SYM:-10$"
+      }
+    }
+  ]
+}

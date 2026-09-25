@@ -11,12 +11,12 @@ ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from core.events import Event, EventType
-from core.skill import Skill, SkillManifest, SkillHealth
+from core.skill import Skill, SkillHealth, SkillManifest
 from layers.memory.store import MemoryStore, MemoryTier
+from layers.work.pool import SkillPool
 from stub.bus_local import LocalEventBus
 from stub.dashboard_gradio import GradioDashboard
 from stub.store_sqlite import SQLiteStore
-from layers.work.pool import SkillPool
 
 
 class FakeSkill(Skill):

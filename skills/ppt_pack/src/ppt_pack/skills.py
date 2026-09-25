@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from core.skill import Skill, SkillManifest
 
@@ -152,9 +151,10 @@ class ExportSkill(Skill):
             return {"ok": False, "error": "need markdown or layouts"}
 
         try:
-            from pptx import Presentation
-            from pptx.util import Inches, Pt
             import os
+
+            from pptx import Presentation
+            from pptx.util import Inches
 
             prs = Presentation()
             prs.slide_width = Inches(13.333)  # 16:9 宽屏

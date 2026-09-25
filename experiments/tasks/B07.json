@@ -1,0 +1,49 @@
+{
+  "id": "B07",
+  "category": "branch",
+  "description": "余额足则扣款: 100-35",
+  "setup": {
+    "files": {
+      "acct.txt": "balance:100"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "acct.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "-",
+        "a": "$s2",
+        "b": 35
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "after.txt",
+        "content": "BALANCE:{s3}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:after.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^BALANCE:65$"
+      }
+    }
+  ]
+}

@@ -1,17 +1,20 @@
 """Dump 9 个 Tab 的实际渲染结果（不打 Gradio，直接调 _render_xxx）"""
 import os
+
 os.environ['NO_PROXY'] = '*'
 import sys
+
 sys.path.insert(0, '.')
 
-from stub.dashboard_gradio import GradioDashboard
-from stub.bus_local import LocalEventBus
-from layers.work.pool import SkillPool
-from core.events import Event, EventType
-from core.skill import Skill, SkillManifest, SkillHealth
-from stub.store_sqlite import SQLiteStore
-from layers.memory.store import MemoryStore, MemoryTier
 import time
+
+from core.events import Event, EventType
+from core.skill import Skill, SkillHealth, SkillManifest
+from layers.memory.store import MemoryStore, MemoryTier
+from layers.work.pool import SkillPool
+from stub.bus_local import LocalEventBus
+from stub.dashboard_gradio import GradioDashboard
+from stub.store_sqlite import SQLiteStore
 
 
 class DemoSkill(Skill):

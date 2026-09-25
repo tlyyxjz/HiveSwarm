@@ -14,7 +14,6 @@ _AGENTVET_PACK_SRC = (
 if str(_AGENTVET_PACK_SRC) not in sys.path:
     sys.path.insert(0, str(_AGENTVET_PACK_SRC))
 
-import pytest  # noqa: E402
 
 
 class TestAgentVetPack:
@@ -31,6 +30,7 @@ class TestAgentVetPack:
 
     def test_l1_skill_structure(self):
         from agentvet_pack.skills import ScanL1Skill
+
         from core.skill import Skill
         s = ScanL1Skill()
         assert isinstance(s, Skill)
@@ -48,8 +48,9 @@ class TestAgentVetPack:
 
     def test_health_check_returns_health(self):
         """不调真 health_check(可能拉 LLM). 验 health_check 签名."""
-        import asyncio
-        from agentvet_pack.skills import ScanL1Skill, _AgentVetBaseSkill
+
+        from agentvet_pack.skills import ScanL1Skill
+
         from core.skill import SkillHealth
 
         s = ScanL1Skill()

@@ -49,7 +49,6 @@ class TempAgent(Agent):
         if self._destroyed:
             raise AgentAlreadyDestroyedError(f"agent {self.agent_id} already destroyed")
 
-        intent = task.get("intent", "")
         skill_name = task.get("skill")
         if not skill_name:
             # 默认用第一个技能

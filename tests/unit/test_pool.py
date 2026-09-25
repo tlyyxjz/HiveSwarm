@@ -8,7 +8,7 @@ import pytest
 
 from core.events import EventType
 from core.skill import Skill, SkillHealth, SkillManifest
-from core.skill_bundle import SkillBundle, Borrowed
+from core.skill_bundle import Borrowed, SkillBundle
 from layers.work.pool import SkillNotFoundError, SkillPool, SkillRetiredError
 from stub.bus_local import LocalEventBus
 

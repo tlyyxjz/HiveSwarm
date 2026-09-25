@@ -1,10 +1,7 @@
 """src.main 集成测试."""
 from __future__ import annotations
 
-import json
 from unittest.mock import patch
-
-import pytest
 
 from src.main import run_demo
 

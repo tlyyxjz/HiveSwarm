@@ -1,0 +1,41 @@
+{
+  "id": "B10",
+  "category": "branch",
+  "description": "奇数入 odd 桶",
+  "setup": {
+    "files": {
+      "num.txt": "num:17"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "read_file",
+      "args": {
+        "path": "num.txt"
+      }
+    },
+    {
+      "tool": "extract_number",
+      "args": {
+        "text": "$s1",
+        "occurrence": 1
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "bucket_odd.txt",
+        "content": "ODD:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:bucket_odd.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^ODD:17$"
+      }
+    }
+  ]
+}

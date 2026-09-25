@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import asyncio
 from typing import TYPE_CHECKING
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 
+from gateway.models import TaskAcceptedResponse, TaskRequest, TaskResponse
 from layers.memory.store import MemoryTier
-from layers.work.transaction import TaskTransaction
 from layers.work.skill_registry import register_needed_skills
-from gateway.models import TaskRequest, TaskResponse, TaskAcceptedResponse
+from layers.work.transaction import TaskTransaction
 
 if TYPE_CHECKING:
     from core.brain import SubTask
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 router = APIRouter()
 
 
-def _build_subtask_input(subtask: "SubTask", request: TaskRequest) -> dict:
+def _build_subtask_input(subtask: SubTask, request: TaskRequest) -> dict:
     """Build input data for a subtask based on its type."""
     if any(s.startswith("agentvet_") for s in subtask.required_skills):
         return {"target": request.target or "."}

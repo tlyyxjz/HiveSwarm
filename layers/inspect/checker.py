@@ -9,9 +9,9 @@ from typing import Any
 
 from layers.inspect.validator import (
     HasKeys,
+    InRange,
     MinLength,
     NotEmpty,
-    InRange,
     ValidationResult,
     Validator,
 )
@@ -37,7 +37,7 @@ class Checker:
         self.name = name
         self._rules: list[tuple[str, Validator]] = []  # (field, validator)
 
-    def add(self, field: str, validator: Validator) -> "Checker":
+    def add(self, field: str, validator: Validator) -> Checker:
         """加一条规则: 对 data[field] 跑 validator."""
         self._rules.append((field, validator))
         return self  # 支持链式
@@ -45,8 +45,9 @@ class Checker:
     def check(self, data: dict[str, Any]) -> CheckReport:
         """跑所有规则, 出报告. 任一失败 ok=False."""
         results: list[ValidationResult] = []
-        for field, v in self._rules:
-            value = data.get(field)
+        # 循环变量名不能叫 field —— 会遮蔽本模块 from dataclasses import field
+        for name, v in self._rules:
+            value = data.get(name)
             results.append(v.check(value))
         ok = all(r.ok for r in results)
         return CheckReport(target=self.name, ok=ok, results=tuple(results))

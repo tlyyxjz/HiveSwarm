@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from stub.services import Services, build_default_services
+from stub.services import Services
 
 
 @pytest.fixture

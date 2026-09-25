@@ -1,396 +1,100 @@
 # HiveSwarm
 
-> Multi-agent coordination framework with **dynamic skill equipping** (borrow/return) and **use-and-discard** agents.
+> **解决的问题**：LLM Agent 在长程多步任务里一旦中途失败——工具返回格式不对、值被污染、依赖断链——主流框架只有两招：盲目重试，或者把"诊断结论"写一句话塞回下一轮 prompt（8–13 步后 adherence 掉到 50% 以下）。**HiveSwarm 把失败修复从"语言层"搬到"结构层"：诊断的输出不是一句话，是一次装配变更。**
 
-> **📌 项目状态**：v0.x 已完成核心机制验证（230 个测试通过：技能借还生命周期、工厂组装、销毁回收）。框架探索阶段收官，主力时间已转向生产化项目——同属「可验证 AI」主线的 [标小智 BidAgent](https://github.com/tlyyxjz/BidAgent) 与开源贡献（[OceanBase PowerContext](https://github.com/oceanbase/powercontext/pull/1483)）。欢迎 fork / issue 讨论，核心设计问题我会持续回复。
+> **📌 项目状态**：核心机制已验证并仍在加厚——技能借还生命周期 / 工厂组装 / 销毁回收 / 失败修复闭环（M1–M5），当前 **636 个测试通过**、覆盖率 88.0%。同属「可验证 AI」主线的还有 [标小智 BidAgent](https://github.com/tlyyxjz/BidAgent) 与开源贡献（[OceanBase PowerContext #1483](https://github.com/oceanbase/powercontext/pull/1483)）。欢迎 fork / issue 讨论，核心设计问题我会持续回复。
 
-## 核心创新
+## 核心创新：Skills are borrowed, not bound
 
-跟 AutoGen / CrewAI 的核心区别:**Skills are borrowed, not bound.**
+工具技能不绑定在常驻 Agent 身上，而是放在池子里**按任务借出、用完强制归还**（引用计数 + 异常路径也归还 + 二次归还直接报错）。每个 Agent 是"用完即毁"的临时装配体。
 
-```
-[任务] → [大脑拆分]
-  → [技能池] 借出需要的 N 个 skill
-  → [工厂] 临时组装 Agent-001 (带这 N 个 skill)
-  → [Agent 执行] 任务完成
-  → [归还 skill] 销毁 Agent-001
-  → [下一个 Agent-002] 借另外 M 个 skill
-```
+这解决了两个真实问题：
+1. **资源不泄漏**——技能再多也不会预先装死在每个 Agent 上；
+2. **权限/副作用有物理边界**——Agent 只能调用它借到的技能，bundle 之外的能力在结构上不存在。
 
-**为什么这很关键**: Skills 太多时,无法预先给每个 Agent 装好;动态按需借,任务结束归还,资源不泄漏。
+## 架构
 
----
-
-## 💎 Pricing
-
-| Tier | Price | Use Case |
-|------|-------|----------|
-| Community | Free | Personal projects, learning |
-| Pro | $50/mo | Small teams, production |
-| Enterprise | $200/mo | Large teams, SLA, custom skills |
-
-### Pro Features ($50/mo)
-- Unlimited agents
-- Custom skill packs
-- Priority queue
-- Dashboard analytics
-- Email support (24h)
-
-### Enterprise Features ($200/mo)
-- Multi-tenant isolation
-- SSO/SAML
-- Audit logs
-- Custom integrations
-- Dedicated support
-- SLA 99.9%
-
-👉 [Get Pro on Gumroad](https://8837207235283.gumroad.com)
-
-## 🏗️ Architecture
-
-```
-[Task] → [Brain: decompose]
-  → [Skill Pool: borrow N skills]
-  → [Factory: assemble Agent-001]
-  → [Agent executes task]
-  → [Return skills, destroy Agent-001]
-  → [Next Agent-002 borrows M skills]
+```mermaid
+flowchart LR
+    T[任务请求] --> B[Brain 拆解 DAG]
+    B -->|按步借技能| P[SkillPool 技能池]
+    P --> F[Factory 装配临时 Agent]
+    F --> X[Transaction 逐步执行]
+    X --> I[Inspect 质检: 6 种验证原语]
+    I -->|断言证伪| C[Causal 反向搜索: 最早被证伪 ≠ 报错位置]
+    C --> D[TypedDispatch: 类型 → 结构动作]
+    D --> G[Regression Gate 回归闸]
+    G -->|换技能/换适配器/重观测| X
+    C -->|不可自动修复| H[halt_escalate 出声上报]
+    I -->|全部通过| R[Report 交付报告]
+    X -.全程事件.-> BUS[(EventBus 可回放审计)]
 ```
 
-## 📊 Test Coverage
+**榫卯五机制**（可靠性核心，全部确定性程序，不依赖模型自觉）：
+- **M1 断言契约层**——LLM 提的约束必须编译成 6 种验证原语之一才能进账本，编不过即丢弃（杜绝假约束）；
+- **M2 类型驱动结构修复**——被证伪断言的 `(种类, 谓词类型)` 查完备 dispatch 表得出唯一结构动作；反向图搜索定位**最早**被证伪的断言而非报错位置；回归闸保证"修 A 不坏 B"；
+- **M3 验证阶梯**——连续 N≥3 次稳定通过的断言自动从"事后检查"升到"事前拦截"，被证伪立刻降级，全程事件可审计。
+- **M4 技能准入闸门**——技能一旦来自外部（第三方包 / GitHub 仓库 / 用户上传），**它本身就是不可信输入**。8 条内置规则（manifest 完整性 / API 版本兼容 / 危险调用 / Trojan Source 双向控制符 / 数据外泄能力组合 / 自我豁免 / 越界写入 / 不可见字符）× 严重度×可信度表驱动裁决，取最严；**fail-closed**（扫描器自己崩了判留观，不是放行）；`register_if_admitted()` 是技能进池的唯一入口。规则编号对齐 Bandit 语义，但**不接受被审对象自我豁免**——`# nosec` 本身即记 HIGH。
+- **M5 技能发现**——候选区 → 筛查 → 装配三段分离：多源检索（本地技能包 / 已注册 / Python entry_points / GitHub 官方 Search API）+ 可解释打分（逐项 breakdown）。**候选不等于可信**——候选区里的东西只是"检索命中了"，装配前**重判一次**（防发现与装配之间内容被替换）。
 
-- 230 tests passing
-- Unit / Integration / E2E
-- 90%+ code coverage
+## 实测数据（真实跑出来的，不写预期值）
 
-## 🔌 Skill Packs
+| 项 | 数字 | 口径 |
+|---|---|---|
+| 单元测试 | **636 passed, 2 skipped** | `pytest tests/unit/ -q`；skip = 手动联网用例 ×1 + Windows 上无法构造 symlink 逃逸面 ×1 |
+| warnings | **0**（error 级过滤生效） | pyproject `filterwarnings = ["error"]` |
+| 测试覆盖率 | **合计 88.0%；core+layers 93.1%** | `pytest --cov=core --cov=layers --cov=stub`；2026-09-25 实测，新增 M4/M5 两模块分别为 92% / 94% |
+| CI | **ruff + 单元测试（py3.10 / 3.12）** | `.github/workflows/ci.yml`；推 PR / 推 master 时自动跑 |
+| 判据可编译率 | 31/31 = 100% | 30 题任务集的判据全部能编译成验证原语 |
 
-| Pack | Description | Status |
-|------|-------------|--------|
-| agentvet_pack | Security scanning | ✅ |
-| crawler_pack | Web crawling | ✅ |
-| ppt_pack | PPT generation | ✅ |
-| web_search_pack | Web search | ✅ |
+机制对照实验（mock 管线，**演示数据非实测**，见 `experiments/runs/demo/report.md`）：三方对照下，值污染/中间量污染类失败只有 C 组（榫卯）恢复且根因定位命中 100%，持久断链类 C 组诚实上报而非假装修复。**真实模型数字待魔搭 Qwen 实跑后替换。**
 
-## 🚀 Quick Start
+## 快速开始（以下命令实测可跑）
 
 ```bash
-cd hiveswarm
-pip install pydantic litellm fastapi uvicorn httpx
-python -m pytest --tb=short -q  # 230 passed
-python -m src.main "帮我做一个 PPT"
+git clone <repo-url> && cd hiveswarm
+pip install pydantic litellm fastapi uvicorn httpx   # 核心依赖
+python -m pytest tests/unit/ -q                      # 636 passed, 2 skipped
+python -m src.main "帮我做一个 PPT"                   # 无 API key 也跑 mock 兜底
 ```
 
-## 📚 Documentation
+可选（想跑**完整** 636 条单测 / ruff，装这个就够）：`pip install -e ".[dev]"` —— 含 pytest/ruff、看板 gradio、PDF reportlab、真 PPT python-pptx、jwt。只装上面核心依赖也能跑，但会有 4 条用例因缺可选依赖失败（缺的是 pptx / reportlab / jwt，不是代码问题）。
 
-- [Architecture](docs/ARCH.md)
-- [Interfaces](docs/INTERFACES.md)
-- [Pricing & Roadmap](docs/PRICING_AND_ROADMAP.md)
-- [Production Setup](docs/PRODUCTION_SETUP.md)
+HTTP 网关：`uvicorn gateway.app:create_app --factory --port 8000` → `GET /health`、`/docs`。
+战情看板：`python dashboard_dump.py`（离线快照）或用 `GradioDashboard.launch()`。
 
+## 实验机器（`experiments/`）
 
-## 快速开始(5 步)
-
-### Step 1: 装 Python 依赖
+30 题任务集（串行/分支/易幻觉三类 × 10）+ 25 个失败注入点（5 类 × 5，独立开关）+ 三方对照 runner（裸模型 / 简单重试 harness / 榫卯三机制），支持断点续跑与轨迹落盘。
 
 ```bash
-cd C:/Users/Lenovo/Desktop/hiveswarm
-pip install pydantic litellm fastapi uvicorn httpx
-pip install pytest pytest-asyncio pytest-cov
-pip install python-pptx  # 可选: PPT 生成 (ppt_pack)
+python -m experiments.run_demo --subset 2   # 6 题冒烟联调
+python -m experiments.run_demo              # 全量 mock 联调（1221 轨迹）
 ```
-
-### Step 2: 跑测试(验证环境)
-
-```bash
-python -m pytest --tb=short -q
-```
-
-期望:`230 passed`
-
-### Step 3: 跑 demo(看效果)
-
-```bash
-python -m src.main "帮我做一个 PPT"
-```
-
-输出:
-```
-Task ID: mock-xxxx
-Rationale: mock brain (no LLM key configured)
-Subtasks (4): s1, s2, s3, s4
-Result: [OK] all passed
-  [OK] s1
-  [OK] s2
-  [OK] s3
-  [OK] s4
-```
-
-### Step 4: 配 LLM(可选,没 key 也行)
-
-优先级: MiniMax M3 > Ollama (qwen3:8b 对话 + bge-m3 嵌入) > OpenAI > Anthropic > MockBrain 降级
-
-```bash
-# MiniMax M3 (推荐)
-set MINIMAX_API_KEY=sk-cp-xxxxx              # Windows cmd
-export MINIMAX_API_KEY=sk-cp-xxxxx            # Linux/Mac
-# 可选: MINIMAX_API_BASE / MINIMAX_MODEL
-
-# OpenAI (备选)
-set OPENAI_API_KEY=sk-xxxx
-
-# Anthropic (备选)
-set ANTHROPIC_API_KEY=sk-ant-xxxx
-```
-
-有 key → 调真 LLM 拆任务(更聪明);无 key → MockBrain 降级。
-
-**Ollama 本地模型**(无需 API Key):
-```bash
-# 装 Ollama + 拉模型
-ollama pull qwen3:8b     # 对话模型
-ollama pull bge-m3        # 嵌入模型(语义搜索)
-```
-自动检测 `OLLAMA_API_BASE`(默认 `http://127.0.0.1:11434`),不可达自动跳过。
-
-### Step 5: 改 config(可选,默认 mvp.toml)
-
-```bash
-# 改行为, 不动 Python
-notepad config/mvp.toml
-```
-
----
-
-## HTTP API 网关
-
-5 个端点,所有非 /health 路径都需要 Bearer Token。
-
-### 启动
-
-```bash
-python -m gateway              # 默认 127.0.0.1:8000
-```
-
-### 鉴权 token (MVP)
-
-| Token | 角色 |
-|-------|------|
-| `mvp-token-admin` | admin (全权限) |
-| `mvp-token-dev` | developer |
-| `mvp-token-view` | viewer |
-
-自定义: 环境变量 `HIVESWARM_TOKENS=user:role,user:role`
-
-### 端点
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `POST` | `/tasks/` | 提交任务,可选 `async_mode=true` 异步 |
-| `GET` | `/tasks/{task_id}` | 取回任务结果 |
-| `GET` | `/skills/` | 列出已注册 skill + 健康度 |
-| `GET` | `/events` | SSE 事件流 |
-| `GET` | `/health` | 健康检查(无需鉴权) |
-
-### 示例
-
-```bash
-# 提交 PPT 任务
-curl -X POST http://127.0.0.1:8000/tasks/ \
-  -H "Authorization: Bearer mvp-token-admin" \
-  -H "Content-Type: application/json" \
-  -d '{"request": "帮我做一个PPT"}'
-
-# 列出 skills
-curl http://127.0.0.1:8000/skills/ \
-  -H "Authorization: Bearer mvp-token-admin"
-
-# 无 token 应被拒
-curl -X POST http://127.0.0.1:8000/tasks/ \
-  -H "Content-Type: application/json" \
-  -d '{"request": "hi"}'
-# → 401 {"detail":"missing Bearer token"}
-```
-
-### Python SDK
-
-```bash
-# 异步
-from sdk.hiveswarm_client import HiveSwarmClient
-async with HiveSwarmClient("http://127.0.0.1:8000") as c:
-    result = await c.submit_task("做一个PPT")
-    print(result.task_id)
-
-# 同步
-from sdk.hiveswarm_client import SyncHiveSwarmClient
-c = SyncHiveSwarmClient("http://127.0.0.1:8000")
-result = c.submit_task("做一个PPT")
-```
-
----
-
-## Gradio 战情看板
-
-```bash
-python -c "from stub.dashboard_gradio import GradioDashboard; \
-  GradioDashboard(port=7860).launch()"
-```
-
-5 面板: 技能池 / 任务 / 事件流 / 健康度 / 提交任务。
-默认静态刷新,点击按钮更新。
-
----
-
-## Docker
-
-```bash
-# 构建 + 启动 gateway + dashboard
-docker compose up
-
-# 只启动 gateway
-docker build -t hiveswarm .
-docker run -p 8000:8000 -p 7860:7860 hiveswarm
-```
-
-端口: gateway 8000,dashboard 7860。
-数据卷: `hive-data` (持久化 SQLite + 日志)。
-
----
 
 ## 项目结构
 
 ```
-hiveswarm/
-├── core/                    # 11 个 ABC 接口(只定义, 不实现)
-│   ├── auth.py              # AuthProvider
-│   ├── audit.py             # AuditLogger
-│   ├── billing.py           # BillingMeter
-│   ├── tenant.py            # TenantContext
-│   ├── recovery.py          # RecoveryStrategy
-│   ├── telemetry.py         # Tracer
-│   ├── governance.py        # DataRetention
-│   ├── skill.py             # Skill + SkillManifest + SkillHealth
-│   ├── skill_bundle.py      # SkillBundle + Borrowed
-│   ├── agent.py             # Agent
-│   ├── brain.py             # Brain + Plan + SubTask
-│   └── events.py            # EventBus + Event
-│
-├── layers/                  # 6 层业务逻辑
-│   ├── brain/               # 拆任务 + 决策
-│   ├── work/                # 借/装/跑/还
-│   ├── inspect/             # 检查
-│   ├── repair/              # 修补
-│   ├── monitor/             # 监察
-│   └── memory/              # 记忆
-│
-├── stub/                    # MVP 占位实现(11 个)
-│   ├── auth_simple.py       # 永远 admin
-│   ├── audit_logfile.py     # 本地 JSONL
-│   ├── ...
-│   └── services.py          # 聚合根(跟 Miku 桌宠 AppServices 同套路)
-│
-├── config/                  # 配置(策略驱动, 不写死)
-│   ├── default.toml         # 基线
-│   ├── mvp.toml             # MVP 用(全 stub)
-│   └── production.toml.example  # 公司用占位
-│
-├── tests/                   # 测试金字塔
-│   ├── unit/                # 70% — 纯函数(< 5s)
-│   ├── integration/         # 20% — 多层(< 30s)
-│   └── e2e/                 # 10% — 6 层全链(< 2min)
-│
-├── docs/                    # 文档
-│   ├── VISION.md            # 产品愿景
-│   ├── ARCH.md              # 架构详解
-│   ├── INTERFACES.md        # 11 个 ABC 接口清单
-│   ├── HOW_TO_REPLACE.md    # 替换 stub 指南
-│   └── CHANGELOG.md         # 升级日志
-│
-├── gateway/                 # FastAPI HTTP 网关
-│   ├── app.py               # create_app() 工厂 + lifespan
-│   ├── deps.py              # Depends 辅助
-│   ├── models.py            # Pydantic 请求/响应模型 + 输入校验
-│   ├── middleware/
-│   │   └── auth_bootstrap.py  # Bearer Token 鉴权
-│   └── routes_*.py          # tasks / skills / events / health
-│
-├── sdk/                     # Python SDK
-│   └── hiveswarm_client/
-│       ├── client.py        # async + sync 客户端
-│       └── __init__.py      # 导出 HiveSwarmClient / SyncHiveSwarmClient
-│
-├── src/                     # CLI 入口
-│   └── main.py              # `python -m src.main "请求"`
-│
-├── skills/                  # 技能包(独立 pip install)
-│   ├── agentvet_pack/       # 示例: AI 安全扫描 (L1-L4)
-│   ├── crawler_pack/        # 通用 HTTP 爬虫 (fetch/extract/post)
-│   └── ppt_pack/            # ⏳ 占位
-│
-├── pyproject.toml           # 依赖 + pytest/ruff/mypy 配置
-├── .github/workflows/       # CI(test.yml, push 触发)
-└── README.md                # 你正在读的
+core/          核心契约 (ABC): 事件总线 / 技能 / Agent / 大脑 / 治理
+layers/
+  brain/       DAG 规划 (Mock/LLM)
+  work/        技能池 / 借还事务 / 临时装配 / 准入闸门(M4) / 技能发现(M5)
+  inspect/     6 种验证原语 + 组合检查 + LLM 目检
+  contract/    榫卯 M1/M2/M3: 断言契约 / 因果搜索 / 验证阶梯
+  repair/      类型驱动 dispatch + 回归闸 + 重装配
+  monitor/     健康快照 / 事件日志
+  report/      交付报告生成
+experiments/   评测任务集 / 失败注入 / 三方对照 / 七指标
+stub/          契约的可替换默认实现 (auth/审计/计费/租户/熔断...)
+skills/        技能包: crawler / ppt / web_search / agentvet
+gateway/       FastAPI 网关 (认证中间件 + REST)
 ```
 
----
+## 文档
 
-## 测试
-
-```bash
-# 全部
-python -m pytest --tb=short -q
-# 230 passed
-
-# 只跑单元
-python -m pytest tests/unit -q
-
-# 只跑集成
-python -m pytest tests/integration -q
-
-# 只跑 e2e
-python -m pytest tests/e2e -q
-
-# 看覆盖
-python -m pytest --cov=core --cov=layers --cov=stub --cov-report=term-missing
-```
-
----
-
-## 开发进度(15 天)
-
-| Day | 日期 | 内容 | 测试 | 状态 |
-|-----|------|------|------|------|
-| 1-5 | 2026-06-25 | 11 ABC + 6 层架构 + 借还机制 | 187 | ✅ |
-| 6-10 | 2026-06-26 | Gateway 5端点 + SDK + Gradio + SSE | 209 | ✅ |
-| 11-13 | 2026-06-26 | 鉴权中间件 + Docker + 输入校验 | 220 | ✅ |
-| 14 | 2026-06-27 上午 | Ollama 本地模型 + Skill Pack 激活 | 230 | ✅ |
-| 15 | 2026-06-27 下午 | Ollama 接入重构 + 蜂巢精密化(拆 llm_litellm.py + async httpx + dispatch_async + MemoryCfg + Ollama 真推理) | 245+3 | ✅ |
-
-**当前版本: 0.2.0 — 245 passed + 3 skipped 全绿(3 集成为 Ollama HTTP 502 时容错 skip)。**
-
-> 已修项: ~~网关零鉴权~~ ~~SSE内存泄漏~~ ~~Docker缺失~~ ~~active_provider 找不到静默用第一个~~ ~~Ollama 同步阻塞 event loop~~ ~~NO_PROXY 重复 17 行~~
-> 待办(Day 16+): 公司化 6 stub 示例化(OAuth/Kafka/Stripe/Tenant/OTel/CircuitBreaker)+ HOW_TO_REPLACE 扩展 7 ABC 覆盖 + GitHub Release v0.2.0。
-
----
-
-## 文档索引
-
-- [VISION.md](docs/VISION.md) — 1 页产品愿景
-- [ARCH.md](docs/ARCH.md) — 6 层架构详解 + 借还机制图
-- [INTERFACES.md](docs/INTERFACES.md) — 11 个 ABC 接口契约 + 替换原则
-- [HOW_TO_REPLACE.md](docs/HOW_TO_REPLACE.md) — 5 个真实替换场景(Auth→OAuth, Audit→Kafka, ...)
-- [CHANGELOG.md](docs/CHANGELOG.md) — 升级日志
-
----
-
-## 核心承诺
-
-1. **每个文件 ≤ 300 行**(Miku 桌宠规则沿用)
-2. **新代码 1 行配 2 行测试**(Miku 桌宠 54 测试的密度)
-3. **所有可升级点 = ABC 接口**, 实现 = stub, 换 = 改配置
-4. **核心代码 0 修改**就能换 auth/audit/billing/... 任一公司实现
-
----
+- [架构](docs/ARCH.md) · [接口](docs/INTERFACES.md) · [替换指南](docs/HOW_TO_REPLACE.md)
+- [榫卯改造方案](docs/榫卯改造方案.md) · [审计记录](docs/审计记录_20260913.md) · [仓库体检](docs/仓库体检报告_20260914.md)
+- English: [README.en.md](README.en.md)
 
 ## License
 

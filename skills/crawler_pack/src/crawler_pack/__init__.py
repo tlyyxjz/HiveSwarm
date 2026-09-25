@@ -20,10 +20,11 @@ from __future__ import annotations
 from typing import Any
 
 from core.skill import Skill, SkillManifest
+
 from .skills import (
     HttpFetchSkill,
-    UrlExtractSkill,
     HttpPostSkill,
+    UrlExtractSkill,
     register_all,
 )
 

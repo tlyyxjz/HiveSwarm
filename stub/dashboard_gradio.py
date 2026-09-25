@@ -18,15 +18,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 import gradio as gr
 
 from core.events import EventType
-from core.brain import Plan, SubTask
-
 
 # ── 配色 + 字体（OKLCH 调色，custom_css 注入）───────────────────
 # 设计纪律: 不准 Inter/Roboto/Arial, 不准紫蓝渐变, 单 accent, tinted neutrals
@@ -331,7 +329,7 @@ class GradioDashboard:
                 rts = r.get("ts", "")[:19]
                 lines.append(f"  └ 修复: **{action}** → `{target}` @ `{rts}`")
             else:
-                lines.append(f"  └ 修复: (无)")
+                lines.append("  └ 修复: (无)")
             lines.append("")
 
         # 按 action 统计
@@ -449,8 +447,9 @@ class GradioDashboard:
 
     def _render_event_timeline(self):
         """事件流时间序列（按分钟桶）折线图."""
-        import pandas as pd
         from collections import Counter
+
+        import pandas as pd
         if self._bus is None:
             return pd.DataFrame({"minute": ["—"], "count": [0]})
         events = self._bus.recent(500)
@@ -463,8 +462,9 @@ class GradioDashboard:
 
     def _render_event_type_pie(self):
         """事件类型分布柱状图（替代饼图）."""
-        import pandas as pd
         from collections import Counter
+
+        import pandas as pd
         if self._bus is None:
             return pd.DataFrame({"type": ["—"], "count": [0]})
         events = self._bus.recent(500)
@@ -473,8 +473,9 @@ class GradioDashboard:
 
     def _render_task_success_rate(self):
         """任务成功率时间序列（按分钟）."""
-        import pandas as pd
         from collections import defaultdict
+
+        import pandas as pd
         if self._bus is None:
             return pd.DataFrame({"minute": ["—"], "ok": [0], "fail": [0], "rate": [0.0]})
         events = self._bus.recent(500)
@@ -617,10 +618,10 @@ class GradioDashboard:
             return "", "**Parameter Error**: 任务描述不能为空", err
 
         try:
-            from layers.work.transaction import TaskTransaction
+            from layers.memory.store import MemoryTier
             from layers.work.factory import AgentFactory
             from layers.work.skill_registry import register_needed_skills
-            from layers.memory.store import MemoryStore, MemoryTier
+            from layers.work.transaction import TaskTransaction
 
             factory = AgentFactory(self._pool)
             plan = asyncio.run(self._brain.plan(request_text))

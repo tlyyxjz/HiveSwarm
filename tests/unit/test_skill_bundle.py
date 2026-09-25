@@ -4,13 +4,10 @@
 """
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
 from core.skill import Skill, SkillManifest
 from core.skill_bundle import Borrowed, SkillBundle
-
 
 # ── 测试用 fake ──────────────────────────────────────────────────────────
 
@@ -93,9 +90,8 @@ class TestBorrowedExceptionPath:
         """with 块里抛异常,归还照样发生. 这就是 Borrowed 存在的意义."""
         pool = FakePool()
         bundle = SkillBundle([FakeSkill("a")])
-        with pytest.raises(ValueError, match="boom"):
-            with Borrowed(bundle, pool):
-                raise ValueError("boom")
+        with pytest.raises(ValueError, match="boom"), Borrowed(bundle, pool):
+            raise ValueError("boom")
         # 即便任务炸,技能也还了
         assert bundle.is_returned is True
         assert pool.returned == [bundle]
@@ -120,9 +116,8 @@ class TestBorrowedExceptionPath:
                 raise RuntimeError("pool broken")
 
         bundle = SkillBundle([FakeSkill("a")])
-        with pytest.raises(ValueError, match="primary"):
-            with Borrowed(bundle, BrokenPool()):
-                raise ValueError("primary")
+        with pytest.raises(ValueError, match="primary"), Borrowed(bundle, BrokenPool()):
+            raise ValueError("primary")
         # BrokenPool 异常被吞(log warning),主异常透传
 
 

@@ -1,5 +1,7 @@
 """Playwright 切 9 个 Tab 截图（精确 selector + force click）"""
-import asyncio, os
+import asyncio
+import os
+
 os.environ['NO_PROXY'] = '*'
 from playwright.async_api import async_playwright
 
@@ -32,7 +34,7 @@ async def main():
                 print(f"  [FAIL] {label}: {e}")
 
         await browser.close()
-        print(f"\nDone.")
+        print("\nDone.")
 
 
 asyncio.run(main())

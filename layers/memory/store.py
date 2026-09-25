@@ -9,7 +9,6 @@
 """
 from __future__ import annotations
 
-import json
 import time
 from enum import Enum
 from typing import Any

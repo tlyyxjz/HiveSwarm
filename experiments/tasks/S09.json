@@ -1,0 +1,43 @@
+{
+  "id": "S09",
+  "category": "serial",
+  "description": "规范化后统计 bob 出现行数",
+  "setup": {
+    "files": {
+      "raw.txt": "Bob\nalice\nCARL\nbob"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "text_search",
+      "args": {
+        "path": "raw.txt",
+        "pattern": "bob|Bob"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s1",
+        "b": 0
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "count.txt",
+        "content": "BOB:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:count.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^BOB:2$"
+      }
+    }
+  ]
+}

@@ -4,11 +4,9 @@
 """
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import re
-from typing import Any
 
 from core.brain import Brain, Plan, SubTask
 from core.events import Event, EventBus, EventType
@@ -210,7 +208,12 @@ class LLMBrain(Brain):
                     "LLM plan attempt %d unexpected: %s", attempt, exc, exc_info=True
                 )
 
-        _log.warning("falling back to mock brain after %d failures", self._max_retries + 1)
+        # 把最后一次失败原因带出来 —— 否则回退到 mock 时日志里只有次数, 没有根因
+        _log.warning(
+            "falling back to mock brain after %d failures (last error: %s)",
+            self._max_retries + 1,
+            last_err,
+        )
         return await self._mock.plan(request, context)
 
     async def decide(self, plan: Plan, observations: list[dict]) -> tuple[str, str]:

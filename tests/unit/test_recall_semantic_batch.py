@@ -11,19 +11,15 @@ from __future__ import annotations
 
 import asyncio
 import time
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock, patch
 
 from layers.memory.recall import (
     _embed_in_batches,
     _filter_by_window,
-    _ollama_embed,
     recall_semantic,
 )
 from layers.memory.store import MemoryStore, MemoryTier
 from stub.store_sqlite import SQLiteStore
-
 
 # ── helpers ────────────────────────────────────────────────────────
 

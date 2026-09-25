@@ -1,4 +1,4 @@
-"""Skill manifest — 描述技能包版本兼容性."""
+# Skill manifest — 描述技能包版本兼容性
 [pack]
 name = "hiveswarm-skill-web-search"
 version = "0.1.0"

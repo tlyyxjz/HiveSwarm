@@ -1,0 +1,43 @@
+{
+  "id": "B05",
+  "category": "branch",
+  "description": "命中 ERROR 走告警分支",
+  "setup": {
+    "files": {
+      "app.log": "ERROR disk\nINFO ok"
+    }
+  },
+  "solution_steps": [
+    {
+      "tool": "text_search",
+      "args": {
+        "path": "app.log",
+        "pattern": "ERROR"
+      }
+    },
+    {
+      "tool": "calc",
+      "args": {
+        "op": "+",
+        "a": "$s1",
+        "b": 0
+      }
+    },
+    {
+      "tool": "write_file",
+      "args": {
+        "path": "alert.txt",
+        "content": "ALERT:{s2}"
+      }
+    }
+  ],
+  "success_criteria": [
+    {
+      "subject": "file:alert.txt",
+      "validator_name": "regex_match",
+      "params": {
+        "pattern": "^ALERT:1$"
+      }
+    }
+  ]
+}

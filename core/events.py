@@ -6,10 +6,11 @@ enum,Bus 实现只管发收,不分发逻辑(那在 Monitor).
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 
 class EventType(str, Enum):
@@ -22,6 +23,17 @@ class EventType(str, Enum):
     TASK_FAILED = "task.failed"
     REPAIR_TRIGGERED = "repair.triggered"
     PAUSE_POINT = "pause.point"  # 通知人审
+    # ── 榫卯 M1/M2/M3 (T1.1 起, 只增不改, 见 docs/任务单_T11_断言契约层.md) ──
+    ASSERTION_VERIFIED = "assertion.verified"
+    ASSERTION_FALSIFIED = "assertion.falsified"
+    ASSERTION_ESCALATED = "assertion.escalated"  # M3: L1→L2 升级
+    ASSERTION_DEGRADED = "assertion.degraded"  # M3: 证伪降级
+    REPAIR_APPLIED = "repair.applied"  # M2: 结构修复已落地
+    REPAIR_ROLLED_BACK = "repair.rolled_back"  # M2: 回归闸拦下, 已回滚
+    # ── 榫卯 M4/M5 (T1.6 起, 只增不改, 见 docs/任务单_T16_技能发现与准入门.md) ──
+    SKILL_DISCOVERED = "skill.discovered"  # M5: 某来源检出候选(此时尚未验过任何东西)
+    SKILL_SCREENED = "skill.screened"  # M5: 候选筛查完毕, 分 chosen / screened_out
+    SKILL_ADMISSION_VERDICT = "skill.admission_verdict"  # M4: 准入判决(allow/quarantine/deny)
 
 
 @dataclass(frozen=True)

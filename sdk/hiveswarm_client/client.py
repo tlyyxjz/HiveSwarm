@@ -1,14 +1,18 @@
 """HiveSwarm Python SDK client."""
 from __future__ import annotations
 
-import json
 import asyncio
-from typing import AsyncGenerator, Optional
+import json
+from collections.abc import AsyncGenerator
+
 import httpx
 
 from gateway.models import (
-    TaskRequest, TaskResponse, TaskAcceptedResponse,
-    SkillsResponse, HealthResponse
+    HealthResponse,
+    SkillsResponse,
+    TaskAcceptedResponse,
+    TaskRequest,
+    TaskResponse,
 )
 
 
@@ -19,7 +23,7 @@ class HiveSwarmClient:
         self,
         base_url: str = "http://localhost:8000",
         timeout: float = 120.0,
-        http_client: Optional[httpx.AsyncClient] = None
+        http_client: httpx.AsyncClient | None = None
     ):
         """Initialize the client.
 
@@ -41,7 +45,7 @@ class HiveSwarmClient:
         self,
         request: str,
         *,
-        target: Optional[str] = None,
+        target: str | None = None,
         async_mode: bool = False
     ) -> TaskResponse | TaskAcceptedResponse:
         """Submit a task for execution.
@@ -152,7 +156,7 @@ class SyncHiveSwarmClient:
         self,
         request: str,
         *,
-        target: Optional[str] = None,
+        target: str | None = None,
         async_mode: bool = False
     ) -> TaskResponse | TaskAcceptedResponse:
         """Submit task synchronously."""
@@ -197,8 +201,7 @@ class SyncHiveSwarmClient:
                 async for event in client.stream_events():
                     yield event
 
-        for event in asyncio.run(_stream()):
-            yield event
+        yield from asyncio.run(_stream())
 
     def health(self) -> HealthResponse:
         """Check health synchronously."""

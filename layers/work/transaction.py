@@ -76,7 +76,7 @@ class TaskTransaction(AbstractContextManager["TaskTransaction"]):
         self._result = TransactionResult(task_id=self._task_id)
         self._entered = False
 
-    def __enter__(self) -> "TaskTransaction":
+    def __enter__(self) -> TaskTransaction:
         self._entered = True
         return self
 
@@ -104,7 +104,7 @@ class TaskTransaction(AbstractContextManager["TaskTransaction"]):
             if self._abort:
                 self._result.aborted = True
 
-    def add(self, subtask: SubTask) -> "SubtaskRunner":
+    def add(self, subtask: SubTask) -> SubtaskRunner:
         """加一个 subtask, 返回 SubtaskRunner 让用户调 run()."""
         if not self._entered:
             raise RuntimeError("TaskTransaction must be used in a with block")
