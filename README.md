@@ -2,6 +2,8 @@
 
 > **解决的问题**：LLM Agent 在长程多步任务里一旦中途失败——工具返回格式不对、值被污染、依赖断链——主流框架只有两招：盲目重试，或者把"诊断结论"写一句话塞回下一轮 prompt（8–13 步后 adherence 掉到 50% 以下）。**HiveSwarm 把失败修复从"语言层"搬到"结构层"：诊断的输出不是一句话，是一次装配变更。**
 
+> **📌 项目状态**：核心机制已验证并仍在加厚——技能借还生命周期 / 工厂组装 / 销毁回收 / 失败修复闭环（M1–M5），当前 **636 个测试通过**、覆盖率 88.0%。同属「可验证 AI」主线的还有 [标小智 BidAgent](https://github.com/tlyyxjz/BidAgent) 与开源贡献（[OceanBase PowerContext #1483](https://github.com/oceanbase/powercontext/pull/1483)）。欢迎 fork / issue 讨论，核心设计问题我会持续回复。
+
 ## 核心创新：Skills are borrowed, not bound
 
 工具技能不绑定在常驻 Agent 身上，而是放在池子里**按任务借出、用完强制归还**（引用计数 + 异常路径也归还 + 二次归还直接报错）。每个 Agent 是"用完即毁"的临时装配体。
