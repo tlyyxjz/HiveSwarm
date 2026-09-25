@@ -9,6 +9,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 
 ## [Unreleased]
 
+### Added (2026-09-25, 榫卯 T1.6 — M4 准入闸门 + M5 技能发现)
+- **`layers/work/admission.py` — M4 技能准入闸门** (`AdmissionGate` / `AdmissionSubject` / `AdmissionRule` / `Finding` / `AdmissionReport`):
+  - 8 条内置规则: manifest 完整性(HS-001) / API 版本兼容(HS-002) / 危险调用(HS-003, 编号对齐 Bandit B102·B301·B307·B506·B602·B603·B604·B105·B108·B310·B324·B322) / Trojan Source 双向控制符(B613) / 数据外泄**能力组合**(HS-010, 判定"读凭据 + 网络外联"的最小充分条件) / **自我豁免**(HS-011) / 越界写入(HS-012) / 不可见字符(HS-014)
+  - 裁决: `Severity × TrustLevel` 表驱动, **取最严**(CRITICAL 不被 LOW 稀释); fail-closed(规则或扫描后端异常 → 不低于 QUARANTINE)
+  - `register_if_admitted(pool, subject, factory)` — 技能进池的**唯一入口**; 被拒时连 factory 都不调用
+  - `AgentVetBridge`: 装了 agentvet 走 L1 深度扫描, 没装**如实记** `skipped: not installed`(不假装扫过)
+  - 判决 append-only 记账(内存 + 可选 JSONL), 可回放审计
+- **`layers/work/discovery.py` — M5 技能发现** (`SkillDiscovery` / `SkillCandidate` / `ScoredCandidate` / `ScreeningOutcome` / `DiscoveryResult`):
+  - 4 个检索源: `LocalPackSource`(扫本地技能包, 兼容 SKILL.md frontmatter) / `PoolSource` / `EntryPointSource`(兑现 pyproject 预留的 `hiveswarm.skills` group) / `GitHubRepoSource`(GitHub 官方 Search API; 限流·断网·无 token 一律降级为空结果, 不抛)
+  - 打分可解释: `name/tag/text/trust/health` 五项 breakdown, required_skills 命中为硬信号
+  - **候选 != 可信**: 远程候选本地无内容可扫 → 一律 QUARANTINE(fail-closed), 不做"自动下载并注册第三方代码"
+  - **装配前重判**(防 TOCTOU): 发现与装配之间内容被替换会被抓
+  - 同包多技能复用一次包级判决(避免一个包被扫 N 遍)
+- **接口变更（字段枚举，只增不改）**: `core.events.EventType` 追加 3 成员 — `skill.discovered` / `skill.screened` / `skill.admission_verdict`
+- **单测** `tests/unit/test_work_admission.py` + `test_work_discovery.py` 共 105 条, 含防误报回归 / fail-closed / TOCTOU / **防绕过静态检查** 四类对抗性用例
+- **接进主链路（默认关闭，旧路径零改动）**: `skill_registry.register_needed_skills_via_discovery()` + `RegisterReport`(缺口如实报回, 默认**不塞 mock**), `src/main.py` 新增 `--discovery` 开关。旧 `register_needed_skills()` 一行未改, 基线不冒险
+- **接线单测** `tests/unit/test_skill_registry_discovery.py` 18 条(含"缺口必须上报、不得假装成功"与"旧路径行为不变"两组回归)
+- 测试基线: 513 → **636 passed, 2 skipped**; 覆盖率 87%·core+layers 91% → **88.0% / 93.1%**(2026-09-25 实测)
+
+### Added (2026-09-25, 补齐 CI)
+- **`.github/workflows/ci.yml`**: `ruff check` + `pytest tests/unit/`(matrix py3.10 / 3.12, 3.12 附带覆盖率表); push master/main 与 PR 触发
+- 本机跑不了 GitHub Actions, 所以把工作流里的每一步在**一个全新 venv** 里逐条跑过; 这一步挖出下面 4 类"干净环境才暴露"的问题, 全部修掉之后该序列在本机为新绿: `ruff check .` → **All checks passed**; `pytest tests/unit/ -q` → **636 passed, 2 skipped**
+
+### Fixed (2026-09-25, 为让 CI 真绿而暴露出的既有缺陷)
+- **`pip install -e .` 构建失败**: `pyproject.toml` 是 PEP 621 元数据 + poetry-core 后端, 而仓库没有与发行名同名的 `hiveswarm/` 目录(代码是 `core/ layers/ ...` 并列顶层包) ⇒ `ModuleOrPackageNotFoundError`。改用 setuptools 后端 + 显式 `[tool.setuptools] packages`。
+- **干净环境下 `tests/unit` 整个收集失败**: 新版 starlette 用 httpx 驱动 `TestClient` 会发 `StarletteDeprecationWarning`, 被 `filterwarnings=["error"]` 升级为收集期错误。按警告类精确忽略(非通配), 并注明后续应改 httpx2。
+- **`dev` extra 缺少 3 个跑完整单测必需的可选依赖**(`python-pptx` / `reportlab` / `pyjwt`): 缺了会 fail 而不是 skip ⇒ 干净环境只有 632 passed / 4 failed。已补进 `dev`。
+- **`src/main.py` — `--discovery` 一旦有缺口就崩**: 函数内 `import logging as _log` 把 `_log` 变成局部名, 遮蔽了模块级 logger, 命中缺口分支时 `UnboundLocalError`。
+- **`core/skill_bundle.py` — 注解引用了从未定义的 `SkillPoolPort`**: 补一个只声明 `return_back` 的 Protocol(同时明确 core 不反向依赖 layers)。
+- **`layers/inspect/checker.py` — `field` 循环变量遮蔽了 `from dataclasses import field`**。
+- 另清理 4 处死代码(`cand` / `code_style` / `services` / `intent`), 并把 `try/except: pass` 改成 `contextlib.suppress`; `layers/brain/planner.py` 回退日志补上最后一次失败原因。
+- **`ruff check .` 全仓 90 条错 → 0**: 生产代码(`core/ layers/ gateway/ src/ sdk/`)全部修干净; 测试与历史脚手架(`tests/ stub/ experiments/ skills/`)按**逐文件写明理由**的方式豁免既有风格债, 清单在 `pyproject.toml`。
+
+### Fixed (2026-09-25, 实跑 M4 时暴露的既有缺陷)
+- **`skills/*/manifest.toml` 首行不是合法 TOML**(3 个包): 第 1 行写成 `"""Skill manifest — ..."""`, TOML 无此语法, `tomllib.load()` 在 line 1 column 3 直接报错。一直没暴露是因为 `skill_registry.py` 走硬编码映射表、从不读 manifest.toml。改为注释行; 同时给解析器加**收得很紧**的容忍(仅"独占一行且整行一段三引号"才剥离), 真写坏的 manifest 仍会被 HS-001 报出来。
+- **`skills/ppt_pack/manifest.toml` 的 `file` 字段与实现不符**: 原指向 `ppt_pack/skills/{collect,outline,layout,export}.py`, 实际 4 个类全在 `ppt_pack/skills.py` 单文件里, 按 manifest import 必然失败。已修正并留注释说明。
+- **准入规则误报真实第一方包**: `crawler_pack` 被 HS-010 判 DENY, 命中的是 `os.environ.pop("NO_PROXY")` + `httpx.get(...)` —— 设代理变量不是窃取凭据。已把"凭据来源"收紧为两种真信号(敏感文件路径 / 具名密钥环境变量), 并补防误报回归测试钉住该案例。
+
 ### Added (2026-09-13, 榫卯 T1.1)
 - **`layers/contract/` — M1 断言契约层**:
   - `assertion.py` — Assertion (frozen pydantic v2): 谓词白名单锁死在 6 原语, `materialize()` 还原为 Validator 实例

@@ -1,0 +1,75 @@
+name: CI
+
+# 触发: 推 master / 开 PR / 手动跑
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+# 同一分支的旧任务自动取消, 避免排队
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install ruff
+        run: python -m pip install --upgrade pip ruff
+      # 规则集与 line-length 由 pyproject.toml [tool.ruff] 决定, 此处不重复声明
+      - name: ruff check
+        run: ruff check .
+
+  test:
+    name: unit tests (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.10 = pyproject 声明的下限; 3.12 = 一个较新的受支持版本
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install (editable + dev extras)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Unit tests
+        if: matrix.python-version != '3.12'
+        run: python -m pytest tests/unit/ -q
+
+      # 只在 3.12 上多跑一次覆盖率报告
+      - name: Unit tests + coverage
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m pytest tests/unit/ -q \
+            --cov=core --cov=layers --cov=stub \
+            --cov-report=term-missing:skip-covered
+
+      - name: Coverage table to job summary
+        if: matrix.python-version == '3.12'
+        run: |
+          {
+            echo '### Coverage (`--cov=core --cov=layers --cov=stub`)'
+            echo ''
+            echo '```'
+            python -m coverage report --skip-covered
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

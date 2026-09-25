@@ -21,7 +21,15 @@ from typing import TYPE_CHECKING
 from core.skill import Skill
 
 if TYPE_CHECKING:
-    pass
+    from typing import Protocol
+
+    class SkillPoolPort(Protocol):
+        """借还机制对"池"的最小要求: 只要能归还.
+
+        这里只声明 Borrowed.__exit__ 用到的唯一方法, 避免 core 反向依赖 layers.
+        """
+
+        def return_back(self, bundle: SkillBundle) -> None: ...
 
 
 class SkillBundle:

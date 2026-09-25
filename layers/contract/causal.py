@@ -43,7 +43,6 @@ def find_root_cause(ledger: AssertionLedger, symptom_aid: str) -> RootCause | No
         visited.add(aid)
         if ledger.status(aid) is AssertionStatus.FALSIFIED:
             dist = len(path) - 1
-            cand = (dist, aid, path)
             # 距离最大者优先; 同距离取 aid 字典序最小 → 比较 (-dist, aid) 取最小
             key = (-dist, aid)
             if best is None or key < (-best[0], best[1]):

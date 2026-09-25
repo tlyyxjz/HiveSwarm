@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass
 from typing import Any
 
@@ -37,10 +38,8 @@ class HealthSnapshotter:
         recent = self._bus.recent(event_window)
         if self._log is not None:
             # 也可从 log 读 (更多历史)
-            try:
+            with contextlib.suppress(Exception):
                 recent = self._log.read_recent(event_window)
-            except Exception:  # noqa: BLE001
-                pass
 
         # 统计: 事件里把 TASK_COMPLETED 算 ok, TASK_FAILED 算 error
         ok = sum(1 for e in recent if e.get("type") == EventType.TASK_COMPLETED.value)

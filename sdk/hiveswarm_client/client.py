@@ -201,8 +201,7 @@ class SyncHiveSwarmClient:
                 async for event in client.stream_events():
                     yield event
 
-        for event in asyncio.run(_stream()):
-            yield event
+        yield from asyncio.run(_stream())
 
     def health(self) -> HealthResponse:
         """Check health synchronously."""

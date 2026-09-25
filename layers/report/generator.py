@@ -309,10 +309,8 @@ class ReportGenerator:
             "Body", parent=styles["BodyText"],
             fontSize=11, leading=16, textColor="#0F172A",
         )
-        code_style = ParagraphStyle(
-            "Code", parent=styles["Code"],
-            fontSize=9, leading=13,
-        )
+        # NOTE: 这里原本还有一个 code_style = ParagraphStyle("Code", ...) 从未被 story 引用
+        # (死代码, 已被 ruff F841 抓出并删除)。若将来要渲染代码块样式, 在此处重建并真正应用到 story。
 
         story: list = [Paragraph(title, title_style), Spacer(1, 12)]
         md_text = md_path.read_text(encoding="utf-8")

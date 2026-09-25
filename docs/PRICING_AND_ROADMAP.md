@@ -141,15 +141,15 @@ TaskTransaction 前：`if plan.current_running >= tenant_plan.max_concurrent →
 | **时间旅行回放** | `EventBus.replay(since_ts)` 接口已经有了，看板接一下就行。dashboard_gradio.py 加一个时间轴面板 | 小 |
 | **Gradio→React 迁移** | Gradio 适合原型，生产环境需要 React 前端。React 前端读 /skills /tasks /events 三个 endpoint 就行 | 大 |
 | **多租户隔离** | `TenantContext` ABC 已有 + `Tenant.plan` 已有。加个 `MultiTenantStore` stub → 每个租户独立配额 + 独立技能池 | 中 |
-| **crawler_pack 实现** | 方案 Y 的"GitHub 收割机"——gh API 搜 langchain/openai function/claude tool 项目 → 喂给 agentvet 扫 | 中 |
-| **第三方技能市场** | 别人可以 `pip install hiveswarm-skill-xxx` → `pool.register(...)` 自动发现 | 中 |
+| ✅ **已落地 T1.6** | ~~crawler_pack 实现（"GitHub 收割机"）~~ → 落地为 `layers/work/discovery.py` 的 `GitHubRepoSource`（走**官方** Search API，不爬页面）+ 4 源检索 + 可解释打分。⚠️ 与原始设想有一处**刻意的差异**：搜到的仓库只进**候选区**并判 `QUARANTINE`（本地没内容可扫），**不做"自动下载并注册第三方代码"** —— 那等于把准入闸门开在取回之前。 | 已做 |
+| ✅ **已落地 T1.6** | ~~第三方技能市场~~ → 落地为 `EntryPointSource`，走 Python 标准 `entry_points(group="hiveswarm.skills")`（兑现 pyproject 里预留的 group），`pip install hiveswarm-skill-xxx` 即可被自动发现。⚠️ **发现 ≠ 放行**：第三方入口一律按 `UNVERIFIED` 过准入闸门。 | 已做 |
 
 ## 3.3 远期（3-12 月，产品化）
 
 | 方向 | 为什么 |
 |------|--------|
 | **SaaS 多租户** | 五档定价 + Stripe 计费 + OAuth 登录 → 一个域名服务 1000 个公司 |
-| **技能版本化** | `SkillManifest.api_version = "1.0"` 已有 → 加语义版本 + 兼容矩阵，技能可独立升级不炸 |
+| **技能版本化** | 部分已落地（T1.6 的 HS-002：准入时校验 `api_version` 主版本 + `min_core_version`）→ 还差语义版本 + 兼容矩阵，让技能可独立升级不炸 |
 | **Agent 记忆跨 session** | `MemoryStore` 3 层已有多租户前缀 → 加向量检索（Qdrant）→ agent 记得上个月的对话 |
 | **人机协同 (pause point)** | `EventType.PAUSE_POINT` 已有 → 关键决策点暂停 → 微信/邮件通知人审批 → 人点了继续跑 |
 | **技能编排 DSL** | 不是 "拆 4 个 subtask 串行"，而是用 YAML 描述 DAG："先跑 A→ B 和 C 并行→ 结果合并→ D 收尾" |
@@ -160,7 +160,7 @@ TaskTransaction 前：`if plan.current_running >= tenant_plan.max_concurrent →
 
 # 四、总结
 
-**现在能卖的是**: 一个能跑的 MVP——借还技能、拆任务、网关 5 端点、看板 5 面板、202 测试全绿。
+**现在能卖的是**: 一个能跑的 MVP——借还技能、拆任务、**技能准入闸门 + 运行时技能发现**、网关 5 端点、看板 5 面板、**636 测试全绿**（2026-09-25 实测；覆盖率合计 88.0%，core+layers 93.1%）。
 
 **卖之前必须先修的**: 鉴权、SSE 泄漏、Docker 化——这三样加起来不超过 2 小时，不修没法给客户看。
 

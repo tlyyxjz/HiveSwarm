@@ -28,18 +28,21 @@ flowchart LR
     X -.every event.-> BUS[(EventBus, replayable)]
 ```
 
-**Three mechanisms** (the reliability core; all deterministic code, no reliance on model obedience):
+**Five mechanisms** (the reliability core; all deterministic code, no reliance on model obedience):
 - **M1 Assertion contract layer** — constraints proposed by the LLM must compile into one of 6 validation primitives to enter the ledger; anything else is dropped (no fake constraints);
 - **M2 Type-driven structural repair** — a falsified assertion's `(kind, predicate class)` maps through a complete dispatch table to exactly one structural action; reverse graph search locates the **earliest** falsified assertion, not the error site; a regression gate guarantees "fix A without breaking B";
 - **M3 Verification ladder** — assertions that pass N≥3 consecutive observations are auto-promoted from post-hoc checks to pre-call interception; any falsification demotes them immediately; every promotion/demotion is an auditable event.
+- **M4 Skill admission gate** — once a skill comes from outside (third-party package / GitHub repo / user upload), **it is untrusted input by definition**. 8 built-in rules (manifest integrity / API-version compatibility / dangerous calls / Trojan Source bidi controls / exfiltration capability *combination* / self-exemption / out-of-sandbox writes / invisible chars) × a severity-by-trust decision table that always takes the **strictest** verdict; **fail-closed** (if the scanner itself crashes, the verdict is quarantine, not allow); `register_if_admitted()` is the only entry into the pool. Rule IDs follow Bandit semantics, but **self-exemption by the audited artifact is not accepted** — a `# nosec` marker is itself a HIGH finding.
+- **M5 Skill discovery** — candidates → screening → installation, kept as three separate stages: multi-source retrieval (local packs / already-registered / Python entry_points / GitHub Search API) + explainable scoring (per-component breakdown). **A candidate is not a trusted skill** — everything in the candidate list is merely "a search hit"; installation **re-evaluates** through the gate, so content swapped between discovery and install is caught.
 
 ## Measured numbers (actually run — no projected values)
 
 | Item | Value | How |
 |---|---|---|
-| Unit tests | **513 passed, 1 skipped** | `pytest tests/unit/ -q`; skip = manual network test |
+| Unit tests | **636 passed, 2 skipped** | `pytest tests/unit/ -q`; skips = manual network test ×1 + Windows cannot construct a symlink-escape surface ×1 |
 | Warnings | **0** (error-level filter on) | `filterwarnings = ["error"]` in pyproject |
-| Coverage | **87% overall; 91% core+layers** | `pytest --cov=core --cov=layers --cov=stub` |
+| Coverage | **88.0% overall; 93.1% core+layers** | `pytest --cov=core --cov=layers --cov=stub`; measured 2026-09-25; the two new M4/M5 modules are at 92% / 94% |
+| CI | **ruff + unit tests (py3.10 / 3.12)** | `.github/workflows/ci.yml`; runs on PRs and on pushes to master |
 | Criteria compilable | 31/31 = 100% | every criterion in the 30-task set compiles into a validation primitive |
 
 Mechanism comparison experiment (mock pipeline, **demo data — not real-model measurements**, see `experiments/runs/demo/report.md`): under three-way comparison, value/pollution failures are recovered only by group C (HiveSwarm) with 100% root-cause localization, and persistent chain breaks are honestly escalated rather than fake-fixed. **Real-model numbers will replace these after running on ModelScope Qwen.**
@@ -49,11 +52,11 @@ Mechanism comparison experiment (mock pipeline, **demo data — not real-model m
 ```bash
 git clone <repo-url> && cd hiveswarm
 pip install pydantic litellm fastapi uvicorn httpx   # core deps
-python -m pytest tests/unit/ -q                      # 513 passed
+python -m pytest tests/unit/ -q                      # 636 passed, 2 skipped
 python -m src.main "帮我做一个 PPT"                   # runs with mock fallback, no API key needed
 ```
 
-Optional: `pip install gradio reportlab python-pptx` (dashboard / PDF reports / real PPT), `pip install -e .` (dev toolchain).
+Optional (this alone is enough to run the **full** 636-test suite + ruff): `pip install -e ".[dev]"` — bundles pytest/ruff, the gradio dashboard, reportlab for PDF, python-pptx for real PPT, and jwt. The core deps above still run the demo, but 4 test cases will fail for missing optional deps (pptx / reportlab / jwt — not a code issue).
 
 HTTP gateway: `uvicorn gateway.app:create_app --factory --port 8000` then `GET /health`, `/docs`.
 Dashboard: `python dashboard_dump.py` (offline snapshot) or `GradioDashboard.launch()`.
@@ -73,7 +76,7 @@ python -m experiments.run_demo              # full mock run (1221 traces)
 core/          core contracts (ABCs): event bus / skill / agent / brain / governance
 layers/
   brain/       DAG planning (mock / LLM)
-  work/        skill pool / borrow-return transaction / temp assembly
+  work/        skill pool / borrow-return transaction / temp assembly / admission gate (M4) / discovery (M5)
   inspect/     6 validation primitives + composable checks + LLM judge
   contract/    mechanisms M1/M2/M3: assertion contracts / causal search / ladder
   repair/      typed dispatch + regression gate + re-assembly

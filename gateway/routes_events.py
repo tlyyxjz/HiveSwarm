@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 
 from fastapi import APIRouter, Request
@@ -19,10 +20,8 @@ async def stream_events(request: Request):
     queue = asyncio.Queue()
 
     def _on_event(event):
-        try:
+        with contextlib.suppress(asyncio.QueueFull):
             queue.put_nowait(event)
-        except asyncio.QueueFull:
-            pass
 
     # Subscribe to all event types, keep IDs for cleanup
     sub_ids: list[tuple[EventType, int]] = []
@@ -45,10 +44,8 @@ async def stream_events(request: Request):
         except asyncio.CancelledError:
             # 客户端断开 → 取消订阅, 防止内存泄漏
             for et, sid in sub_ids:
-                try:
+                with contextlib.suppress(Exception):
                     bus.unsubscribe(et, sid)
-                except Exception:
-                    pass
             raise
 
     return StreamingResponse(

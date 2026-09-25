@@ -158,7 +158,7 @@ async def recall_semantic(
     query_vec = all_vecs[0]
 
     def _dot(a: list[float], b: list[float]) -> float:
-        return sum(x * y for x, y in zip(a, b))
+        return sum(x * y for x, y in zip(a, b, strict=False))
 
     def _norm(a: list[float]) -> float:
         return math.sqrt(sum(x * x for x in a))

@@ -30,6 +30,10 @@ class EventType(str, Enum):
     ASSERTION_DEGRADED = "assertion.degraded"  # M3: 证伪降级
     REPAIR_APPLIED = "repair.applied"  # M2: 结构修复已落地
     REPAIR_ROLLED_BACK = "repair.rolled_back"  # M2: 回归闸拦下, 已回滚
+    # ── 榫卯 M4/M5 (T1.6 起, 只增不改, 见 docs/任务单_T16_技能发现与准入门.md) ──
+    SKILL_DISCOVERED = "skill.discovered"  # M5: 某来源检出候选(此时尚未验过任何东西)
+    SKILL_SCREENED = "skill.screened"  # M5: 候选筛查完毕, 分 chosen / screened_out
+    SKILL_ADMISSION_VERDICT = "skill.admission_verdict"  # M4: 准入判决(allow/quarantine/deny)
 
 
 @dataclass(frozen=True)
