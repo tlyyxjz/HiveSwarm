@@ -29,7 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 - 测试基线: 513 → **636 passed, 2 skipped**; 覆盖率 87%·core+layers 91% → **88.0% / 93.1%**(2026-09-25 实测)
 
 ### Added (2026-09-25, 补齐 CI)
-- **`.github/workflows/ci.yml`**: `ruff check` + `pytest tests/unit/`(matrix py3.10 / 3.12, 3.12 附带覆盖率表); push master/main 与 PR 触发
+- **`.github/workflows/ci.yml`**: `ruff check` + `pytest tests/unit/`(matrix py3.10 / 3.12, 3.12 附带覆盖率表); push main/master 与 PR 触发
+  - ⚠️ 与下面 v0.3.0 那条区分: 那条写的 `.github/workflows/test.yml` **是早期版本, 此后已被移除**(见提交 `2f442c1`, 当时推送凭据缺 `workflow` 权限), 仓库里已无该文件; 现在生效的是 `ci.yml`。
 - 本机跑不了 GitHub Actions, 所以把工作流里的每一步在**一个全新 venv** 里逐条跑过; 这一步挖出下面 4 类"干净环境才暴露"的问题, 全部修掉之后该序列在本机为新绿: `ruff check .` → **All checks passed**; `pytest tests/unit/ -q` → **636 passed, 2 skipped**
 
 ### Fixed (2026-09-25, 为让 CI 真绿而暴露出的既有缺陷)
