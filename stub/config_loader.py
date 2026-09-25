@@ -13,7 +13,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10: tomllib 是 3.11 才进标准库的
+    import tomli as tomllib  # type: ignore[no-redef]
 
 
 class ConfigError(ValueError):
