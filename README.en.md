@@ -39,9 +39,9 @@ flowchart LR
 
 | Item | Value | How |
 |---|---|---|
-| Unit tests | **636 passed, 2 skipped** | `pytest tests/unit/ -q`; skips = manual network test ×1 + Windows cannot construct a symlink-escape surface ×1 |
+| Unit tests | **CI 637 passed, 1 skipped** (Windows local: 636 passed, 2 skipped) | `pytest tests/unit/ -q`; the only skip is a manual network test (`tests/unit/test_web_search_pack.py:158`); the other case — "Windows cannot construct a symlink-escape surface" — runs on Linux CI |
 | Warnings | **0** (error-level filter on) | `filterwarnings = ["error"]` in pyproject |
-| Coverage | **88.0% overall; 93.1% core+layers** | `pytest --cov=core --cov=layers --cov=stub`; measured 2026-09-25; the two new M4/M5 modules are at 92% / 94% |
+| Coverage | **CI TOTAL 88%** (3931 statements / 457 missed); 93.1% core+layers (layered figure) | `pytest --cov=core --cov=layers --cov=stub`; measured 2026-10-09 on CI; the two new M4/M5 modules are at 92% / 94% |
 | CI | **ruff + unit tests (py3.10 / 3.12)** | `.github/workflows/ci.yml`; runs on PRs and on pushes to master |
 | Criteria compilable | 31/31 = 100% | every criterion in the 30-task set compiles into a validation primitive |
 
@@ -52,11 +52,11 @@ Mechanism comparison experiment (mock pipeline, **demo data — not real-model m
 ```bash
 git clone <repo-url> && cd hiveswarm
 pip install pydantic litellm fastapi uvicorn httpx   # core deps
-python -m pytest tests/unit/ -q                      # 636 passed, 2 skipped
+python -m pytest tests/unit/ -q                      # CI Linux: 637 passed, 1 skipped
 python -m src.main "帮我做一个 PPT"                   # runs with mock fallback, no API key needed
 ```
 
-Optional (this alone is enough to run the **full** 636-test suite + ruff): `pip install -e ".[dev]"` — bundles pytest/ruff, the gradio dashboard, reportlab for PDF, python-pptx for real PPT, and jwt. The core deps above still run the demo, but 4 test cases will fail for missing optional deps (pptx / reportlab / jwt — not a code issue).
+Optional (this alone is enough to run the **full** test suite + ruff): `pip install -e ".[dev]"` — bundles pytest/ruff, the gradio dashboard, reportlab for PDF, python-pptx for real PPT, and jwt. The core deps above still run the demo, but 4 test cases will fail for missing optional deps (pptx / reportlab / jwt — not a code issue).
 
 HTTP gateway: `uvicorn gateway.app:create_app --factory --port 8000` then `GET /health`, `/docs`.
 Dashboard: `python dashboard_dump.py` (offline snapshot) or `GradioDashboard.launch()`.

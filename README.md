@@ -2,7 +2,7 @@
 
 > **解决的问题**：LLM Agent 在长程多步任务里一旦中途失败——工具返回格式不对、值被污染、依赖断链——主流框架只有两招：盲目重试，或者把"诊断结论"写一句话塞回下一轮 prompt（8–13 步后 adherence 掉到 50% 以下）。**HiveSwarm 把失败修复从"语言层"搬到"结构层"：诊断的输出不是一句话，是一次装配变更。**
 
-> **📌 项目状态**：核心机制已验证并仍在加厚——技能借还生命周期 / 工厂组装 / 销毁回收 / 失败修复闭环（M1–M5），当前 **636 个测试通过**、覆盖率 88.0%。同属「可验证 AI」主线的还有 [标小智 BidAgent](https://github.com/tlyyxjz/BidAgent) 与开源贡献（[OceanBase PowerContext #1483](https://github.com/oceanbase/powercontext/pull/1483)）。欢迎 fork / issue 讨论，核心设计问题我会持续回复。
+> **📌 项目状态**：核心机制已验证并仍在加厚——技能借还生命周期 / 工厂组装 / 销毁回收 / 失败修复闭环（M1–M5），当前 **637 个测试通过**（CI 实测，1 skipped）、覆盖率 88%。同属「可验证 AI」主线的还有 [标小智 BidAgent](https://github.com/tlyyxjz/BidAgent) 与开源贡献（[OceanBase PowerContext #1483](https://github.com/oceanbase/powercontext/pull/1483)）。欢迎 fork / issue 讨论，核心设计问题我会持续回复。
 
 ## 核心创新：Skills are borrowed, not bound
 
@@ -41,9 +41,9 @@ flowchart LR
 
 | 项 | 数字 | 口径 |
 |---|---|---|
-| 单元测试 | **636 passed, 2 skipped** | `pytest tests/unit/ -q`；skip = 手动联网用例 ×1 + Windows 上无法构造 symlink 逃逸面 ×1 |
+| 单元测试 | **CI 637 passed, 1 skipped**（本机 Windows 为 636 passed, 2 skipped） | `pytest tests/unit/ -q`；唯一 skip = 手动联网用例（`tests/unit/test_web_search_pack.py:158`）；另有 1 条「Windows 无法构造 symlink 逃逸面」在 Linux CI 上可跑 |
 | warnings | **0**（error 级过滤生效） | pyproject `filterwarnings = ["error"]` |
-| 测试覆盖率 | **合计 88.0%；core+layers 93.1%** | `pytest --cov=core --cov=layers --cov=stub`；2026-09-25 实测，新增 M4/M5 两模块分别为 92% / 94% |
+| 测试覆盖率 | **CI TOTAL 88%**（3931 语句 / 457 未覆盖）；core+layers 93.1%（分层口径） | `pytest --cov=core --cov=layers --cov=stub`；2026-10-09 CI 实测，新增 M4/M5 两模块分别为 92% / 94% |
 | CI | **ruff + 单元测试（py3.10 / 3.12）** | `.github/workflows/ci.yml`；推 PR / 推 master 时自动跑 |
 | 判据可编译率 | 31/31 = 100% | 30 题任务集的判据全部能编译成验证原语 |
 
@@ -54,11 +54,11 @@ flowchart LR
 ```bash
 git clone <repo-url> && cd hiveswarm
 pip install pydantic litellm fastapi uvicorn httpx   # 核心依赖
-python -m pytest tests/unit/ -q                      # 636 passed, 2 skipped
+python -m pytest tests/unit/ -q                      # CI Linux: 637 passed, 1 skipped
 python -m src.main "帮我做一个 PPT"                   # 无 API key 也跑 mock 兜底
 ```
 
-可选（想跑**完整** 636 条单测 / ruff，装这个就够）：`pip install -e ".[dev]"` —— 含 pytest/ruff、看板 gradio、PDF reportlab、真 PPT python-pptx、jwt。只装上面核心依赖也能跑，但会有 4 条用例因缺可选依赖失败（缺的是 pptx / reportlab / jwt，不是代码问题）。
+可选（想跑**完整**单测集 / ruff，装这个就够）：`pip install -e ".[dev]"` —— 含 pytest/ruff、看板 gradio、PDF reportlab、真 PPT python-pptx、jwt。只装上面核心依赖也能跑，但会有 4 条用例因缺可选依赖失败（缺的是 pptx / reportlab / jwt，不是代码问题）。
 
 HTTP 网关：`uvicorn gateway.app:create_app --factory --port 8000` → `GET /health`、`/docs`。
 战情看板：`python dashboard_dump.py`（离线快照）或用 `GradioDashboard.launch()`。
