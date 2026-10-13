@@ -52,7 +52,7 @@ flowchart LR
 ## 快速开始（以下命令实测可跑）
 
 ```bash
-git clone <repo-url> && cd hiveswarm
+git clone https://github.com/tlyyxjz/HiveSwarm.git && cd HiveSwarm
 pip install pydantic litellm fastapi uvicorn httpx   # 核心依赖
 python -m pytest tests/unit/ -q                      # CI Linux: 637 passed, 1 skipped
 python -m src.main "帮我做一个 PPT"                   # 无 API key 也跑 mock 兜底
